@@ -2,7 +2,7 @@ use motif::{alt, group, pred, seq, cases};
 use motif::MatchError;
 use crate::data::{Token, TMeta};
 
-pub fn tokenize( input : &str ) -> Result<Vec<Token>, String> {
+pub fn tokenize( input : &str ) -> Result<Vec<Token>, MatchError> {
     match internal_tokenize(input) {
         Ok(ts) => {
             Ok(ts.into_iter()
@@ -12,14 +12,8 @@ pub fn tokenize( input : &str ) -> Result<Vec<Token>, String> {
                      _ => panic!("Encountered Junk after filter")
                  })
                  .collect())
-         },
-        Err(MatchError::ErrorEndOfFile | MatchError::FatalEndOfFile) =>
-            Err("Encountered unexpected end of file while tokenizing.".into()),
-        Err(MatchError::Error(i) | MatchError::Fatal(i)) => {
-            let error_reporter::ErrorReport { line, column, display } = error_reporter::report(input, i, i);
-            let ret = format!("Encountered tokenization error at line {line} and column {column}:\n\n{display}");
-            Err(ret)
         },
+        Err(e) => Err(e),
     }
 }
 
