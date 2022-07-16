@@ -24,3 +24,18 @@ pub enum Token {
     Dot(TMeta),
     Comma(TMeta),
 }
+
+#[derive(Debug)]
+pub enum Data {
+    // number
+    // string
+    // symbol
+    // variable
+    // list
+    // tuple
+    // lambda
+}
+
+#[derive(Debug)]
+pub enum Ast {
+}
