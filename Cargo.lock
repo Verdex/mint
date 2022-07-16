@@ -3,9 +3,14 @@
 version = 3
 
 [[package]]
+name = "error_reporter"
+version = "0.1.0"
+
+[[package]]
 name = "mint"
 version = "0.1.0"
 dependencies = [
+ "error_reporter",
  "motif",
 ]
 
