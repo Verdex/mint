@@ -1,5 +1,5 @@
 
-mod data;
+mod ast;
 mod parsing;
 
 fn main() {

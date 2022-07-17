@@ -1,6 +1,6 @@
 use motif::{alt, group, pred, seq, cases};
 use motif::MatchError;
-use crate::data::{Token, TMeta};
+use crate::ast::{Token, TMeta};
 
 pub fn tokenize( input : &str ) -> Result<Vec<Token>, MatchError> {
     match internal_tokenize(input) {
