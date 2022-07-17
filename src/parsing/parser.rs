@@ -25,10 +25,6 @@ seq!(parse_top<'a>: &'a Token => Top = lets <= * parse_let, expr <= parse_expr, 
     Top { lets, expr }
 });
 
-group!(parse_expr<'a>: &'a Token => Expr = |input| {
-    Err(MatchError::FatalEndOfFile)
-});
-
 group!(parse_let<'a>: &'a Token => Let = |input| {
 
     pred!(is_let<'a>: &'a Token => () = 
@@ -45,6 +41,7 @@ group!(parse_let<'a>: &'a Token => Let = |input| {
                                     , pattern <= parse_pattern
                                     , Token::Equal(_)
                                     , expr <= parse_expr
+                                    , Token::Semicolon(_)
                                     , { Let { pattern, expr } });
 
     main(input)
@@ -54,10 +51,16 @@ group!(parse_pattern<'a>: &'a Token => Pat = |input| {
     Err(MatchError::FatalEndOfFile)
 });
 
+group!(parse_expr<'a>: &'a Token => Expr = |input| {
+    seq!(data<'a>: &'a Token => Expr = data <= parse_data, { Expr::Data(data) });
+    alt!(main<'a>: &'a Token => Expr = data);
+
+    main(input)
+});
 // match
 // let
 // function 
-// let X = fun(P, P, P) { }
+// let X = fun(P, P, P) { };
 // let { X, Y, Z } = { 1, 2, blah };
 /*
 

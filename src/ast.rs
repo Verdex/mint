@@ -24,6 +24,7 @@ pub enum Token {
     Dot(TMeta),
     Comma(TMeta),
     Equal(TMeta),
+    Semicolon(TMeta),
 }
 
 #[derive(Debug)]
@@ -39,7 +40,6 @@ pub enum Data {
 
 #[derive(Debug)]
 pub enum Pat {
-    Nil
 }
 
 #[derive(Debug)]
