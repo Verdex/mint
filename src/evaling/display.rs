@@ -12,6 +12,28 @@ pub fn print_data(data : &Data, context : &Context) -> Result<String, RuntimeErr
             let data = context.lookup(var)?;
             print_data(&data, context)
         },
+        Data::List(datas) => {
+            let inner = datas.iter()
+                             .map(|data| print_data(data, context))
+                             .collect::<Result<Vec<String>, RuntimeError>>()?
+                             .join(", ");
+            Ok(format!("[{}]", inner))
+        },
         _ => Ok("err".into()),
+    }
+}
+
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn should_return_err_for_unbound_variable_in_middle_of_list() {
+        let input = Data::List(vec![ Data::Number(1.0), Data::Variable("X".into()), Data::Number(1.0) ]);
+        let context = Context::new();
+        let output = print_data(&input, &context);
+
+        assert!( matches!( output, Err(RuntimeError::VariableNotFound(_) ) ) );
     }
 }
