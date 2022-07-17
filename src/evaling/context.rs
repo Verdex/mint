@@ -19,4 +19,11 @@ impl Context {
         }
     }
 
+    pub fn set(&mut self, name : &str, data : Data) -> Result<(), RuntimeError> {
+        match self.bound_variables.get(name) {
+            None => { self.bound_variables.insert(name.into(), data); Ok(()) },
+            Some(_) => Err(RuntimeError::CannotSetBoundVariable(name.into())),
+        }
+    }
+
 }
