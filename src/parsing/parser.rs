@@ -103,7 +103,7 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
     });
 
     seq!(variable<'a>: &'a Token => Data = variable <= Token::UpperSymbol(_, _), { 
-        if let Token::LowerSymbol(_, var) = variable {
+        if let Token::UpperSymbol(_, var) = variable {
             Data::Variable(var.into()) 
         }
         else {
