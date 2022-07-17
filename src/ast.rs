@@ -14,6 +14,8 @@ pub enum Token {
     RParen(TMeta),
     LCurl(TMeta),
     RCurl(TMeta),
+    LSquare(TMeta),
+    RSquare(TMeta),
     LAngle(TMeta),
     RAngle(TMeta),
     SLArrow(TMeta),
