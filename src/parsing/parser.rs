@@ -111,7 +111,6 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
         }
     });
 
-
     alt!(main<'a>: &'a Token => Data = number 
                                      | string 
                                      | symbol 
@@ -125,17 +124,15 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
 mod test {
     use super::*;
 
-    macro_rules! test_first_parse {
+    macro_rules! test_parse{
         ($name:ident: $input:expr => $expected:pat => $x:block) => {
             #[test]
             fn $name() -> Result<(), MatchError> {
                 use super::super::tokenizer::tokenize;
                 if let Ok(tokens) = tokenize($input) {
-                    let mut output = internal_parse(&tokens)?;
+                    let mut output = parse(&tokens)?;
 
-                    assert_eq!( output.len(), 1 );
-
-                    if let Some($expected) = output.pop() {
+                    if let $expected = output {
                         $x
                     }
                     else {
@@ -149,4 +146,9 @@ mod test {
             }
         };
     }
+
+    test_parse!(should_parse_number: "1.0" => Top { lets, expr } => {
+        assert_eq!( lets.len(), 0 );
+        assert!( matches!( expr, Expr::Data(Data::Number(1.0)) ) );
+    });
 }
