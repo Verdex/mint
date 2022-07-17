@@ -207,6 +207,7 @@ group!(punctuation: (usize, char) => I = |input| {
     seq!(colon: (usize, char) => I = p <= (_, ':'), { I::T(Token::Colon(m(p))) });
     seq!(dot: (usize, char) => I = p <= (_, '.'), { I::T(Token::Dot(m(p))) });
     seq!(comma: (usize, char) => I = p <= (_, ','), { I::T(Token::Comma(m(p))) });
+    seq!(equal: (usize, char) => I = p <= (_, '='), { I::T(Token::Equal(m(p))) });
 
     alt!(single: (usize, char) => I = l_paren
                                     | r_paren
@@ -217,6 +218,7 @@ group!(punctuation: (usize, char) => I = |input| {
                                     | comma
                                     | l_angle
                                     | r_angle
+                                    | equal
                                     );
 
     seq!(single_left_arrow: (usize, char) => I = _1 <= (_, '<'), _2 <= (_, '-'), {

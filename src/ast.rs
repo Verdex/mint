@@ -23,6 +23,7 @@ pub enum Token {
     Colon(TMeta),
     Dot(TMeta),
     Comma(TMeta),
+    Equal(TMeta),
 }
 
 #[derive(Debug)]
@@ -37,5 +38,24 @@ pub enum Data {
 }
 
 #[derive(Debug)]
-pub enum Ast {
+pub enum Pat {
+    Nil
+}
+
+#[derive(Debug)]
+pub enum Expr {
+    Data(Data),
+    Call,
+}
+
+#[derive(Debug)]
+pub struct Let {
+    pub pattern : Pat,
+    pub expr : Expr,
+}
+
+#[derive(Debug)]
+pub struct Top {
+    pub lets : Vec<Let>,
+    pub expr : Expr,
 }
