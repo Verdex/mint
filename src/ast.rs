@@ -35,7 +35,7 @@ pub enum Data {
     String(String),
     Symbol(String),
     Variable(String),
-    // list
+    List(Vec<Data>),
     // tuple
     // lambda
     // pattern

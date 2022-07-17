@@ -73,8 +73,20 @@ let X = fun(A) {
 
 */
 
-
 group!(parse_data<'a>: &'a Token => Data = |input| {
+
+    seq!(comma_data<'a>: &'a Token => Data = Token::Comma(_), data <= ! parse_data, { data });
+
+    seq!(data_list<'a>: &'a Token => Data = Token::LSquare(_)
+                                          , _1 <= parse_data 
+                                          , r <= * comma_data
+                                          , ! Token::RSquare(_)
+                                          , {
+        let mut rest = r;
+        rest.insert(0, _1);
+        Data::List(rest)
+    });
+
     seq!(number<'a>: &'a Token => Data = n <= Token::Number(_, _), { 
         if let Token::Number(_, number) = n {
             Data::Number(*number) 
@@ -115,6 +127,7 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
                                      | string 
                                      | symbol 
                                      | variable
+                                     | data_list
                                      );
 
     main(input)
