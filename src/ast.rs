@@ -27,10 +27,10 @@ pub enum Token {
 
 #[derive(Debug)]
 pub enum Data {
-    // number
-    // string
-    // symbol
-    // variable
+    Number(f64),
+    String(String),
+    Symbol(String),
+    Variable(String),
     // list
     // tuple
     // lambda
