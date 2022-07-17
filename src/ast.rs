@@ -27,7 +27,7 @@ pub enum Token {
     Semicolon(TMeta),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Data {
     Number(f64),
     String(String),
@@ -36,6 +36,7 @@ pub enum Data {
     // list
     // tuple
     // lambda
+    // pattern
 }
 
 #[derive(Debug)]
