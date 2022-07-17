@@ -1,8 +1,18 @@
 
-use crate::ast::{Top, Data};
+use crate::ast::{ Top
+                , Data
+                , Expr
+                };
+
 use super::context::Context;
 
-pub fn eval( input : Top, context : &mut Context ) -> Result<Data, String> {
+pub fn print_data(data : &Data, context : &Context) -> String {
+    "err".into()
+}
 
-    Err("problem".into())
+pub fn eval( input : Top, context : &mut Context ) -> Result<Data, String> {
+    match input.expr {
+        Expr::Data(data) => Ok(data),
+        _ => panic!("!"),
+    }
 }
