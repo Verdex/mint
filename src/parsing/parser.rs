@@ -243,9 +243,31 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
         
         => { () } );
 
-    /*seq!(lambda<'a>: &'a Token => Data = is_fun
-                                       , Token::LParen(_)
-                                      )*/
+    seq!(pat_comma<'a>: &'a Token => Pat = pat <= parse_pattern, Token::Comma(_), { pat });
+
+    seq!(parse_params<'a>: &'a Token => Vec<Pat> = Token::LParen(_)
+                                                 , ps <= * pat_comma 
+                                                 , last <= ? parse_pattern
+                                                 , ! Token::RParen(_)
+                                                 , {
+
+        let mut pats = ps;
+        match last {
+            Some(pat) => pats.push(pat),
+            None => { },
+        }
+        pats
+    });
+
+    seq!(lambda<'a>: &'a Token => Data = is_fun
+                                       , params <= ! parse_params
+                                       , ! Token::LCurl(_)
+                                       , top <= ! parse_top
+                                       , ! Token::RCurl(_)
+                                       , {
+
+        Data::Lambda(params, Box::new(top))
+    });
 
     alt!(main<'a>: &'a Token => Data = number 
                                      | string 
