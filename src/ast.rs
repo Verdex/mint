@@ -38,10 +38,10 @@ pub enum Data {
     Variable(String),
     List(Vec<Data>),
     Tuple(Vec<Data>),
-    // lambda
+    Lambda(Vec<Pat>, Box<Top>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Pat {
     Wild,
     Number(f64),
@@ -54,20 +54,20 @@ pub enum Pat {
     If(Box<Pat>, Expr),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
     Data(Data),
     Call,
     // match
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Let {
     pub pattern : Pat,
     pub expr : Expr,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Top {
     pub lets : Vec<Let>,
     pub expr : Expr,
