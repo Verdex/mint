@@ -232,6 +232,21 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
         }
     });
 
+
+    pred!(is_fun<'a>: &'a Token => () = 
+        |tok| if let Token::LowerSymbol(_, sym) = tok {
+            sym == "fun"
+        }
+        else {
+            false
+        }
+        
+        => { () } );
+
+    /*seq!(lambda<'a>: &'a Token => Data = is_fun
+                                       , Token::LParen(_)
+                                      )*/
+
     alt!(main<'a>: &'a Token => Data = number 
                                      | string 
                                      | symbol 
