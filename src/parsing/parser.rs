@@ -51,10 +51,38 @@ group!(parse_pattern<'a>: &'a Token => Pat = |input| {
 
     /*
     List(Vec<Pat>, Option<Box<Pat>>),
-    Tuple(Vec<Pat>),
     At(String, Box<Pat>),
     If(Box<Pat>, Expr),
     */
+
+    seq!(pat_comma<'a>: &'a Token => Pat = pat <= parse_pattern, Token::Comma(_), { pat });
+
+    /*seq!(data_list<'a>: &'a Token => Data = Token::LSquare(_)
+                                          , ds <= * data_comma 
+                                          , last <= ? parse_data 
+                                          , ! Token::RSquare(_)
+                                          , {
+
+        let mut datas = ds;
+        match last {
+            Some(data) => datas.push(data),
+            None => { },
+        }
+        Data::List(datas)
+    });*/
+
+    seq!(pat_tuple<'a>: &'a Token => Pat = Token::LCurl(_)
+                                         , ps <= * pat_comma 
+                                         , last <= ? parse_pattern
+                                         , ! Token::RCurl(_)
+                                         , {
+        let mut pats = ps;
+        match last {
+            Some(pat) => pats.push(pat),
+            None => { },
+        }
+        Pat::Tuple(pats)
+    });
 
     pred!(wild<'a>: &'a Token => Pat = 
         |tok| if let Token::LowerSymbol(_, sym) = tok {
@@ -108,6 +136,7 @@ group!(parse_pattern<'a>: &'a Token => Pat = |input| {
                                     | symbol
                                     | string
                                     | number
+                                    | pat_tuple
                                     );
     
     main(input)
