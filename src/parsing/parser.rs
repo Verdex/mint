@@ -21,7 +21,7 @@ pub fn parse(tokens : &Vec<Token>) -> Result<Top, MatchError> {
     }
 }
 
-seq!(parse_top<'a>: &'a Token => Top = lets <= * parse_let, expr <= parse_expr, {
+seq!(parse_top<'a>: &'a Token => Top = lets <= * parse_let, expr <= ! parse_expr, {
     Top { lets, expr }
 });
 
@@ -38,10 +38,10 @@ group!(parse_let<'a>: &'a Token => Let = |input| {
         => { () });
 
     seq!(main<'a>: &'a Token => Let = is_let
-                                    , pattern <= parse_pattern
-                                    , Token::Equal(_)
-                                    , expr <= parse_expr
-                                    , Token::Semicolon(_)
+                                    , pattern <= ! parse_pattern
+                                    , ! Token::Equal(_)
+                                    , expr <= ! parse_expr
+                                    , ! Token::Semicolon(_)
                                     , { Let { pattern, expr } });
 
     main(input)
