@@ -38,10 +38,9 @@ pub enum Data {
     List(Vec<Data>),
     Tuple(Vec<Data>),
     // lambda
-    Pat(Pat),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub enum Pat {
     Wild,
     Number(f64),
@@ -51,10 +50,10 @@ pub enum Pat {
     Tuple(Vec<Pat>),
     Variable(String),
     At(String, Box<Pat>),
-    If(Box<Pat>, Box<Expr>),
+    If(Box<Pat>, Expr),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub enum Expr {
     Data(Data),
     Call,
