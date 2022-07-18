@@ -46,7 +46,7 @@ pub enum Pat {
     Number(f64),
     String(String),
     Symbol(String),
-    List(Vec<Pat>),
+    List(Vec<Pat>, Option<Box<Pat>>),
     Tuple(Vec<Pat>),
     Variable(String),
     At(String, Box<Pat>),
