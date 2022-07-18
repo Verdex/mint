@@ -38,17 +38,27 @@ pub enum Data {
     List(Vec<Data>),
     Tuple(Vec<Data>),
     // lambda
-    // pattern
+    Pat(Pat),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Pat {
+    Wild,
+    Number(f64),
+    String(String),
+    Symbol(String),
+    List(Vec<Pat>),
+    Tuple(Vec<Pat>),
+    Variable(String),
+    At(String, Box<Pat>),
+    If(Box<Pat>, Box<Expr>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
     Data(Data),
     Call,
+    // match
 }
 
 #[derive(Debug)]
