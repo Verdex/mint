@@ -48,7 +48,69 @@ group!(parse_let<'a>: &'a Token => Let = |input| {
 });
 
 group!(parse_pattern<'a>: &'a Token => Pat = |input| {
-    Err(MatchError::FatalEndOfFile)
+
+    /*
+    List(Vec<Pat>, Option<Box<Pat>>),
+    Tuple(Vec<Pat>),
+    At(String, Box<Pat>),
+    If(Box<Pat>, Expr),
+    */
+
+    pred!(wild<'a>: &'a Token => Pat = 
+        |tok| if let Token::LowerSymbol(_, sym) = tok {
+            sym == "_"
+        }
+        else {
+            false
+        }
+        
+        => { Pat::Wild });
+
+    seq!(number<'a>: &'a Token => Pat = n <= Token::Number(_, _), { 
+        if let Token::Number(_, number) = n {
+            Pat::Number(*number) 
+        }
+        else {
+            panic!("reflective failure");
+        }
+    });
+
+    seq!(string<'a>: &'a Token => Pat = s <= Token::String(_, _), { 
+        if let Token::String(_, string) = s {
+            Pat::String(string.into()) 
+        }
+        else {
+            panic!("reflective failure");
+        }
+    });
+
+    seq!(symbol<'a>: &'a Token => Pat = symbol <= Token::LowerSymbol(_, _), { 
+        if let Token::LowerSymbol(_, sym) = symbol {
+            Pat::Symbol(sym.into()) 
+        }
+        else {
+            panic!("reflective failure");
+        }
+    });
+
+    seq!(variable<'a>: &'a Token => Pat = variable <= Token::UpperSymbol(_, _), { 
+        if let Token::UpperSymbol(_, var) = variable {
+            Pat::Variable(var.into()) 
+        }
+        else {
+            panic!("reflective failure");
+        }
+    });
+
+
+    alt!(main<'a>: &'a Token => Pat = wild
+                                    | variable
+                                    | symbol
+                                    | string
+                                    | number
+                                    );
+    
+    main(input)
 });
 
 group!(parse_expr<'a>: &'a Token => Expr = |input| {
