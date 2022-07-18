@@ -91,6 +91,20 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
         Data::List(datas)
     });
 
+    seq!(data_tuple<'a>: &'a Token => Data = Token::LCurl(_)
+                                          , ds <= * data_comma 
+                                          , last <= ? parse_data 
+                                          , ! Token::RCurl(_)
+                                          , {
+
+        let mut datas = ds;
+        match last {
+            Some(data) => datas.push(data),
+            None => { },
+        }
+        Data::Tuple(datas)
+    });
+
     seq!(number<'a>: &'a Token => Data = n <= Token::Number(_, _), { 
         if let Token::Number(_, number) = n {
             Data::Number(*number) 
@@ -132,6 +146,7 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
                                      | symbol 
                                      | variable
                                      | data_list
+                                     | data_tuple
                                      );
 
     main(input)

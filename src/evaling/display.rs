@@ -19,6 +19,13 @@ pub fn print_data(data : &Data, context : &Context) -> Result<String, RuntimeErr
                              .join(", ");
             Ok(format!("[{}]", inner))
         },
+        Data::Tuple(datas) => {
+            let inner = datas.iter()
+                             .map(|data| print_data(data, context))
+                             .collect::<Result<Vec<String>, RuntimeError>>()?
+                             .join(", ");
+            Ok(format!("{{{}}}", inner))
+        },
         _ => Ok("err".into()),
     }
 }

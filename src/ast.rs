@@ -36,7 +36,7 @@ pub enum Data {
     Symbol(String),
     Variable(String),
     List(Vec<Data>),
-    // tuple
+    Tuple(Vec<Data>),
     // lambda
     // pattern
 }
