@@ -27,6 +27,7 @@ pub enum Token {
     Comma(TMeta),
     Equal(TMeta),
     Semicolon(TMeta),
+    OrBar(TMeta),
 }
 
 #[derive(Debug, Clone)]
