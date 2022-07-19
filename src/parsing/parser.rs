@@ -271,6 +271,7 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
 
     alt!(main<'a>: &'a Token => Data = number 
                                      | string 
+                                     | lambda
                                      | symbol 
                                      | variable
                                      | data_list
