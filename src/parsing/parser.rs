@@ -21,7 +21,7 @@ pub fn parse(tokens : &Vec<Token>) -> Result<Top, MatchError> {
     }
 }
 
-seq!(parse_top<'a>: &'a Token => Top = lets <= * parse_let, expr <= ! parse_expr, {
+seq!(parse_top<'a>: &'a Token => Top = lets <= * parse_let, expr <= ? parse_expr, {
     Top { lets, expr }
 });
 

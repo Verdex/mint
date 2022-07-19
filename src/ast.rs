@@ -70,5 +70,5 @@ pub struct Let {
 #[derive(Debug, Clone)]
 pub struct Top {
     pub lets : Vec<Let>,
-    pub expr : Expr,
+    pub expr : Option<Expr>,
 }
