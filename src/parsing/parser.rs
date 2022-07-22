@@ -310,6 +310,6 @@ mod test {
 
     test_parse!(should_parse_number: "1.0" => Top { lets, expr } => {
         assert_eq!( lets.len(), 0 );
-        assert!( matches!( expr, Expr::Data(Data::Number(1.0)) ) );
+        assert!( matches!( expr, Some(Expr::Data(Data::Number(1.0))) ) );
     });
 }
