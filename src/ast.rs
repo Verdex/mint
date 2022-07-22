@@ -51,7 +51,6 @@ pub enum Pat {
     Tuple(Vec<Pat>),
     Variable(String),
     At(String, Box<Pat>),
-    If(Box<Pat>, Expr),
 }
 
 #[derive(Debug, Clone)]
@@ -59,6 +58,7 @@ pub enum Expr {
     Data(Data),
     Call,
     // match
+// TODO add if to match cases
 }
 
 #[derive(Debug, Clone)]
