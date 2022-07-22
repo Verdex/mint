@@ -1,5 +1,4 @@
 
-mod data;
 pub mod context;
 
 mod pattern_matcher;
