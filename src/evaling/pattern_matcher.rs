@@ -34,6 +34,15 @@ pub fn pattern_match( pattern : &Pat, data : &Data, context : &Context ) -> Resu
     match (pattern, data) {
         (Pat::Wild, _) => Ok(Some(Context::new())),
 
+        (Pat::Number(p_num), Data::Number(d_num)) if p_num == d_num => Ok(Some(Context::new())),
+        (Pat::Number(p_num), data) => Ok(None), // TODO all of these failure cases might be replaceable by just one
+
+        (Pat::String(p_str), Data::String(d_str)) if p_str == d_str => Ok(Some(Context::new())),
+        (Pat::String(p_str), data) => Ok(None),
+
+        (Pat::Symbol(p_sym), Data::Symbol(d_sym)) if p_sym == d_sym => Ok(Some(Context::new())),
+        (Pat::Symbol(p_sym), data) => Ok(None),
+
         (Pat::At(var, pat), data) => {
             if let Some(new_context) = pattern_match(pat, data, context)? {
                 let mut var_context = Context::new();
@@ -46,30 +55,22 @@ pub fn pattern_match( pattern : &Pat, data : &Data, context : &Context ) -> Resu
             }
         },
 
-        (Pat::Number(p_num), Data::Number(d_num)) if p_num == d_num => {
-            Ok(None) // TODO
-        },
-        (Pat::Number(p_num), data) => {
-
-            Ok(None) // TODO
-        },
-
-        (Pat::String(p_str), Data::String(d_str)) if p_str == d_str => {
-
-            Ok(None) // TODO
-        },
-        (Pat::String(p_str), data) => {
-
-            Ok(None) // TODO
-        },
-
-        (Pat::Symbol(p_sym), Data::Symbol(d_sym)) if p_sym == d_sym => {
-
-            Ok(None) // TODO
-        },
-        (Pat::Symbol(p_sym), data) => {
-
-            Ok(None) // TODO
+        (Pat::Tuple(pats), Data::Tuple(datas)) => {
+            if pats.len() != datas.len() {
+                Ok(None)
+            }
+            else {
+                let mut tuple_context = Context::new();
+                for (p, d) in std::iter::zip(pats, datas) {
+                    if let Some(new_context) = pattern_match(p, d, context)? {
+                        tuple_context.merge(new_context)?;
+                    }
+                    else {
+                        return Ok(None);
+                    }
+                }
+                Ok(Some(tuple_context))
+            }
         },
 
         _ => Ok(None) // TODO:  not sure what _ should be in this context
