@@ -84,11 +84,27 @@ pub fn pattern_match( pattern : &Pat, data : &Data, context : &Context ) -> Resu
             }
         },
 
+        (Pat::Variable(var), data) => {
+            match context.lookup(var) {
+                // bound pattern variable means match against whatever is in there
+                Ok(p) => pattern_match(&data_to_pattern(&p)?, data, context), 
+                // unbound pattern variable means capture whatever is there
+                Err(RuntimeError::VariableNotFound(_)) => {
+                    let mut new_context = Context::new();
+                    new_context.set(var, data.clone())?;
+                    Ok(Some(new_context))
+                },
+                Err(e) => Err(e),
+            }
+        },
+
+        (_, Data::Variable(_)) => {
+
+        },
+
         _ => Ok(None) // TODO:  not sure what _ should be in this context
 
 
-        // TODO Tuple
-        // TODO Variable
         // TODO List
     }
 
