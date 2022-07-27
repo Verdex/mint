@@ -47,13 +47,10 @@ pub fn pattern_match( pattern : &Pat, data : &Data, context : &Context ) -> Resu
         (Pat::Wild, _) => Ok(Some(Context::new())),
 
         (Pat::Number(p_num), Data::Number(d_num)) if p_num == d_num => Ok(Some(Context::new())),
-        (Pat::Number(p_num), data) => Ok(None), // TODO all of these failure cases might be replaceable by just one
 
         (Pat::String(p_str), Data::String(d_str)) if p_str == d_str => Ok(Some(Context::new())),
-        (Pat::String(p_str), data) => Ok(None),
 
         (Pat::Symbol(p_sym), Data::Symbol(d_sym)) if p_sym == d_sym => Ok(Some(Context::new())),
-        (Pat::Symbol(p_sym), data) => Ok(None),
 
         (Pat::At(var, pat), data) => {
             if let Some(new_context) = pattern_match(pat, data, context)? {
@@ -99,11 +96,9 @@ pub fn pattern_match( pattern : &Pat, data : &Data, context : &Context ) -> Resu
             }
         },
 
-        (_, Data::Variable(_)) => {
+        (pat, Data::Variable(var)) => pattern_match(pat, &context.lookup(var)?, context),
 
-        },
-
-        _ => Ok(None) // TODO:  not sure what _ should be in this context
+        _ => Ok(None) 
 
 
         // TODO List
