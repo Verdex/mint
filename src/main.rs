@@ -20,6 +20,8 @@ fn main() {
         let top = parsing::parser::parse(&tokens).unwrap();
         let data = evaling::evaler::eval(top, &mut c).unwrap();
 
-        println!("{}", evaling::display::print_data(&data, &c).unwrap());
+        if let Some(data) = data {
+            println!("{}", evaling::display::print_data(&data, &c).unwrap());
+        }
     } 
 }
