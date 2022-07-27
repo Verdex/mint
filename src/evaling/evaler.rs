@@ -5,12 +5,31 @@ use crate::ast::{ Top
                 };
 
 use super::context::Context;
+use super::error::RuntimeError;
+use super::pattern_matcher;
 
-pub fn eval( input : Top, context : &mut Context ) -> Result<Data, String> {
+pub fn eval( input : Top, context : &mut Context ) -> Result<Option<Data>, RuntimeError> {
 
-    // TODO resolve lets
-    match input.expr {
-        Some(Expr::Data(data)) => Ok(data),
-        _ => panic!("!"),
+    for l in input.lets {
+        if let Some(new_context) = pattern_matcher::pattern_match(&l.pattern, &eval_expr(l.expr)?, context)? {
+            context.merge(new_context)?;
+        }
+        else {
+            return Err(RuntimeError::PatternMatchFailed);
+        }
+    } 
+
+    if let Some(expr) = input.expr {
+        Ok(Some(eval_expr(expr)?))
+    }
+    else {
+        Ok(None)
+    }
+}
+
+fn eval_expr( expr : Expr ) -> Result<Data, RuntimeError> {
+    match expr {
+        Expr::Data(data) => Ok(data),
+        _ => panic!("TODO"),
     }
 }
