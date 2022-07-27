@@ -27,6 +27,9 @@ impl Context {
     }
 
     pub fn merge(&mut self, context : Context) -> Result<(), RuntimeError> {
-        Err(RuntimeError::CannotSetBoundVariable("TODO".into()))
+        for (var, data) in context.bound_variables.into_iter() {
+            self.set(&var, data)?;
+        }
+        Ok(())
     }
 }
