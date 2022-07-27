@@ -32,8 +32,9 @@ pub enum Data {
 fn data_to_pattern(data : &Data) -> Result<Pat, RuntimeError> {
     match data {
         Data::Number(num) => Ok(Pat::Number(*num)),
-        Data::String(s) => Ok(Pat::String(*s)),
-        Data::Variable(v) => Ok(Pat::Variable(*v)), 
+        Data::String(s) => Ok(Pat::String(s.into())),
+        Data::Symbol(s) => Ok(Pat::Symbol(s.into())),
+        Data::Variable(v) => Ok(Pat::Variable(v.into())), 
         Data::List(datas) => Ok(Pat::List( datas.iter().map(data_to_pattern).collect::<Result<_, RuntimeError>>()?, None)),
         Data::Tuple(datas) => Ok(Pat::Tuple(datas.iter().map(data_to_pattern).collect::<Result<_, RuntimeError>>()?)),
         Data::Lambda(_, _) => Err(RuntimeError::CannotPatternMatchAgainstLambda),
