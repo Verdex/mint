@@ -57,7 +57,7 @@ pub fn pattern_match( pattern : &Pat, data : &Data, context : &Context ) -> Resu
         (Pat::At(var, pat), data) => {
             if let Some(new_context) = pattern_match(pat, data, context)? {
                 let mut var_context = Context::new();
-                var_context.set(var, data.clone());
+                var_context.set(var, data.clone())?;
                 var_context.merge(new_context)?;
                 Ok(Some(var_context))
             }
