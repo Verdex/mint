@@ -1,8 +1,7 @@
 
 use motif::{alt, group, pred, seq, cases};
 use motif::MatchError;
-use crate::ast::{ TMeta 
-                , Token
+use crate::ast::{ Token
                 , Top 
                 , Let
                 , Expr
@@ -28,7 +27,7 @@ seq!(parse_top<'a>: &'a Token => Top = lets <= * parse_let, expr <= ? parse_expr
 group!(parse_let<'a>: &'a Token => Let = |input| {
 
     pred!(is_let<'a>: &'a Token => () = 
-        |tok| if let Token::LowerSymbol(_, sym) = tok {
+        |_tok| if let Token::LowerSymbol(_, sym) = _tok {
             sym == "let"
         }
         else {
@@ -85,7 +84,7 @@ group!(parse_pattern<'a>: &'a Token => Pat = |input| {
     });
 
     pred!(wild<'a>: &'a Token => Pat = 
-        |tok| if let Token::LowerSymbol(_, sym) = tok {
+        |_tok| if let Token::LowerSymbol(_, sym) = _tok {
             sym == "_"
         }
         else {
@@ -234,7 +233,7 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
 
 
     pred!(is_fun<'a>: &'a Token => () = 
-        |tok| if let Token::LowerSymbol(_, sym) = tok {
+        |_tok| if let Token::LowerSymbol(_, sym) = _tok {
             sym == "fun"
         }
         else {
