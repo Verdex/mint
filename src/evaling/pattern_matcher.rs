@@ -3,31 +3,6 @@ use crate::ast::{Pat, Data};
 use super::context::Context;
 use super::error::RuntimeError;
 
-/*
-
-pub enum Pat {
-    Wild,
-    Number(f64),
-    String(String),
-    Symbol(String),
-    List(Vec<Pat>, Option<Box<Pat>>),
-    Tuple(Vec<Pat>),
-    Variable(String),
-    At(String, Box<Pat>),
-}
-
-
-pub enum Data {
-    Number(f64),
-    String(String),
-    Symbol(String),
-    Variable(String),
-    List(Vec<Data>),
-    Tuple(Vec<Data>),
-    Lambda(Vec<Pat>, Box<Top>),
-}
-
-*/
 
 fn data_to_pattern(data : &Data) -> Result<Pat, RuntimeError> {
     match data {
@@ -41,7 +16,6 @@ fn data_to_pattern(data : &Data) -> Result<Pat, RuntimeError> {
     }
 }
 
-// TODO (remove) NOTE Err is runtime issue; Ok(None) is fail to pattern match
 pub fn pattern_match( pattern : &Pat, data : &Data, context : &Context ) -> Result<Option<Context>, RuntimeError> {
     match (pattern, data) {
         (Pat::Wild, _) => Ok(Some(Context::new())),
@@ -64,22 +38,18 @@ pub fn pattern_match( pattern : &Pat, data : &Data, context : &Context ) -> Resu
             }
         },
 
+        (Pat::Tuple(pats), Data::Tuple(datas)) if pats.len() != datas.len() => Ok(None),
         (Pat::Tuple(pats), Data::Tuple(datas)) => {
-            if pats.len() != datas.len() {
-                Ok(None)
-            }
-            else {
-                let mut tuple_context = Context::new();
-                for (p, d) in std::iter::zip(pats, datas) {
-                    if let Some(new_context) = pattern_match(p, d, context)? {
-                        tuple_context.merge(new_context)?;
-                    }
-                    else {
-                        return Ok(None);
-                    }
+            let mut tuple_context = Context::new();
+            for (p, d) in std::iter::zip(pats, datas) {
+                if let Some(new_context) = pattern_match(p, d, context)? {
+                    tuple_context.merge(new_context)?;
                 }
-                Ok(Some(tuple_context))
+                else {
+                    return Ok(None);
+                }
             }
+            Ok(Some(tuple_context))
         },
 
         (Pat::Variable(var), data) => {
@@ -98,12 +68,48 @@ pub fn pattern_match( pattern : &Pat, data : &Data, context : &Context ) -> Resu
 
         (pat, Data::Variable(var)) => pattern_match(pat, &context.lookup(var)?, context),
 
+        (Pat::List(pats, Some(rest)), Data::List(datas)) if pats.len() > datas.len() => Ok(None),
+        (Pat::List(pats, Some(rest)), Data::List(datas)) => { 
+            let mut list_context = Context::new();
+            let mut rest_data = vec![];
+            for i in 0..datas.len() {
+                if i < pats.len() {
+                    if let Some(new_context) = pattern_match(&pats[i], &datas[i], context)? {
+                        list_context.merge(new_context)?;
+                    }
+                    else {
+                        return Ok(None);
+                    }
+                }
+                else {
+                    rest_data.push(datas[i].clone()); // NOTE:  Probably not great for memory usage
+                }
+            }
+            if let Some(new_context) = pattern_match(rest, &Data::List(rest_data), context)? {
+                list_context.merge(new_context)?;
+            }
+            else {
+                return Ok(None);
+            }
+            Ok(Some(list_context))
+        },
+        (Pat::List(pats, None), Data::List(datas)) if pats.len() != datas.len() => Ok(None),
+        (Pat::List(pats, None), Data::List(datas)) => {
+            let mut list_context = Context::new();
+            for (p, d) in std::iter::zip(pats, datas) {
+                if let Some(new_context) = pattern_match(p, d, context)? {
+                    list_context.merge(new_context)?;
+                }
+                else {
+                    return Ok(None);
+                }
+            }
+            Ok(Some(list_context))
+        },
+
         _ => Ok(None) 
 
-
-        // TODO List
     }
-
 }
 
 #[cfg(test)]
