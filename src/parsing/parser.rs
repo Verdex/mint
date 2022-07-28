@@ -98,7 +98,7 @@ group!(parse_pattern<'a>: &'a Token => Pat = |input| {
             Pat::Number(*number) 
         }
         else {
-            panic!("reflective failure");
+            panic!("reflexive fail");
         }
     });
 
@@ -107,7 +107,7 @@ group!(parse_pattern<'a>: &'a Token => Pat = |input| {
             Pat::String(string.into()) 
         }
         else {
-            panic!("reflective failure");
+            panic!("reflexive fail");
         }
     });
 
@@ -116,7 +116,7 @@ group!(parse_pattern<'a>: &'a Token => Pat = |input| {
             Pat::Symbol(sym.into()) 
         }
         else {
-            panic!("reflective failure");
+            panic!("reflexive fail");
         }
     });
 
@@ -125,7 +125,7 @@ group!(parse_pattern<'a>: &'a Token => Pat = |input| {
             Pat::Variable(var.into()) 
         }
         else {
-            panic!("reflective failure");
+            panic!("reflexive fail");
         }
     });
 
@@ -200,7 +200,7 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
             Data::Number(*number) 
         }
         else {
-            panic!("reflective failure");
+            panic!("reflexive fail");
         }
     });
 
@@ -209,7 +209,7 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
             Data::String(string.into()) 
         }
         else {
-            panic!("reflective failure");
+            panic!("reflexive fail");
         }
     });
 
@@ -218,7 +218,7 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
             Data::Symbol(sym.into()) 
         }
         else {
-            panic!("reflective failure");
+            panic!("reflexive fail");
         }
     });
 
@@ -227,7 +227,7 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
             Data::Variable(var.into()) 
         }
         else {
-            panic!("reflective failure");
+            panic!("reflexive fail");
         }
     });
 
