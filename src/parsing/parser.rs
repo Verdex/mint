@@ -16,7 +16,7 @@ pub fn parse(tokens : &Vec<Token>) -> Result<Top, MatchError> {
     let top = parse_top(&mut x)?;
 
     match x.next() {
-        Some((i, v)) => Err(MatchError::Fatal(i)),
+        Some((i, _)) => Err(MatchError::Fatal(i)),
         None => Ok(top),
     }
 }
