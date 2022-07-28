@@ -50,9 +50,16 @@ group!(parse_pattern<'a>: &'a Token => Pat = |input| {
 
     /*
     List(Vec<Pat>, Option<Box<Pat>>),
-    At(String, Box<Pat>),
-    If(Box<Pat>, Expr),
     */
+
+    seq!(at<'a>: &'a Token => Pat = var <= Token::UpperSymbol(_, _), Token::At(_), pat <= ! parse_pattern, {
+        if let Token::UpperSymbol(_, sym) = var {
+            Pat::At(sym.into(), Box::new(pat))
+        }
+        else {
+            panic!("reflexive fail");
+        }
+    });
 
     seq!(pat_comma<'a>: &'a Token => Pat = pat <= parse_pattern, Token::Comma(_), { pat });
 
@@ -130,7 +137,8 @@ group!(parse_pattern<'a>: &'a Token => Pat = |input| {
     });
 
 
-    alt!(main<'a>: &'a Token => Pat = wild
+    alt!(main<'a>: &'a Token => Pat = at
+                                    | wild
                                     | variable
                                     | symbol
                                     | string

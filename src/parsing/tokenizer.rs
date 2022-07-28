@@ -212,6 +212,7 @@ group!(punctuation: (usize, char) => I = |input| {
     seq!(equal: (usize, char) => I = p <= (_, '='), { I::T(Token::Equal(m(p))) });
     seq!(semicolon: (usize, char) => I = p <= (_, ';'), { I::T(Token::Semicolon(m(p))) });
     seq!(or_bar: (usize, char) => I = p <= (_, '|'), { I::T(Token::OrBar(m(p))) });
+    seq!(at: (usize, char) => I = p <= (_, '@'), { I::T(Token::At(m(p))) });
 
     alt!(single: (usize, char) => I = l_paren
                                     | r_paren
@@ -227,6 +228,7 @@ group!(punctuation: (usize, char) => I = |input| {
                                     | equal
                                     | semicolon
                                     | or_bar
+                                    | at
                                     );
 
     seq!(single_left_arrow: (usize, char) => I = _1 <= (_, '<'), _2 <= (_, '-'), {
