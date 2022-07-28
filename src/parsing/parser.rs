@@ -63,19 +63,22 @@ group!(parse_pattern<'a>: &'a Token => Pat = |input| {
 
     seq!(pat_comma<'a>: &'a Token => Pat = pat <= parse_pattern, Token::Comma(_), { pat });
 
-    /*seq!(data_list<'a>: &'a Token => Data = Token::LSquare(_)
-                                          , ds <= * data_comma 
-                                          , last <= ? parse_data 
-                                          , ! Token::RSquare(_)
-                                          , {
+    seq!(or_bar_pat<'a>: &'a Token => Box<Pat> = Token::OrBar(_), pat <= ! parse_pattern, { Box::new(pat) });
 
-        let mut datas = ds;
+    seq!(pat_list<'a>: &'a Token => Pat = Token::LSquare(_)
+                                        , ps <= * pat_comma 
+                                        , last <= ? parse_pattern
+                                        , rest <= ? or_bar_pat
+                                        , ! Token::RSquare(_)
+                                        , {
+
+        let mut pats = ps;
         match last {
-            Some(data) => datas.push(data),
+            Some(pat) => pats.push(pat),
             None => { },
         }
-        Data::List(datas)
-    });*/
+        Pat::List(pats, rest)
+    });
 
     seq!(pat_tuple<'a>: &'a Token => Pat = Token::LCurl(_)
                                          , ps <= * pat_comma 
@@ -144,6 +147,7 @@ group!(parse_pattern<'a>: &'a Token => Pat = |input| {
                                     | string
                                     | number
                                     | pat_tuple
+                                    | pat_list
                                     );
     
     main(input)
