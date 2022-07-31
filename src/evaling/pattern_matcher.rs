@@ -68,7 +68,7 @@ pub fn pattern_match( pattern : &Pat, data : &Data, context : &Context ) -> Resu
 
         (pat, Data::Variable(var)) => pattern_match(pat, &context.lookup(var)?, context),
 
-        (Pat::List(pats, Some(rest)), Data::List(datas)) if pats.len() > datas.len() => Ok(None),
+        (Pat::List(pats, _), Data::List(datas)) if pats.len() > datas.len() => Ok(None),
         (Pat::List(pats, Some(rest)), Data::List(datas)) => { 
             let mut list_context = Context::new();
             let mut rest_data = vec![];
@@ -93,7 +93,6 @@ pub fn pattern_match( pattern : &Pat, data : &Data, context : &Context ) -> Resu
             }
             Ok(Some(list_context))
         },
-        (Pat::List(pats, None), Data::List(datas)) if pats.len() != datas.len() => Ok(None),
         (Pat::List(pats, None), Data::List(datas)) => {
             let mut list_context = Context::new();
             for (p, d) in std::iter::zip(pats, datas) {
