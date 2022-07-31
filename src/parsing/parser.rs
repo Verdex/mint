@@ -155,9 +155,50 @@ group!(parse_pattern<'a>: &'a Token => Pat = |input| {
 
 group!(parse_expr<'a>: &'a Token => Expr = |input| {
     seq!(data<'a>: &'a Token => Expr = data <= parse_data, { Expr::Data(data) });
+
+    seq!(expr_comma<'a>: &'a Token => Expr = expr <= parse_expr, Token::Comma(_), { expr });
+
+    seq!(param_list<'a>: &'a Token => Vec<Expr> = Token::LParen(_)
+                                                , es <= * expr_comma 
+                                                , last <= ? parse_expr
+                                                , ! Token::RParen(_)
+                                                , {
+
+        let mut exprs = es;
+        match last {
+            Some(expr) => exprs.push(expr),
+            None => { },
+        }
+        exprs
+    });
+
     alt!(main<'a>: &'a Token => Expr = data);
 
-    main(input)
+    seq!(call<'a>: &'a Token => Expr = m <= main, calls <= * param_list, {
+        if calls.len() == 0 {
+            m
+        }
+        else {
+            let mut r = None;
+            for call in calls {
+                if let Some(prev) = r {
+                    r = Some(Expr::Call(Box::new(prev), call));
+                }
+                else {
+                    r = Some(Expr::Call(Box::new(m.clone()), call));
+                }
+            }
+            if let Some(ret) = r {
+                ret
+            }
+            else {
+                panic!("return value isn't there");
+            }
+        }
+
+    });
+
+    call(input)
 });
 // match
 // let

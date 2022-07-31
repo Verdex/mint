@@ -57,7 +57,7 @@ pub enum Pat {
 #[derive(Debug, Clone)]
 pub enum Expr {
     Data(Data),
-    Call,
+    Call(Box<Expr>, Vec<Expr>),
     // match
 // TODO add if to match cases
 }
