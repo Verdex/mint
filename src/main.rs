@@ -6,7 +6,7 @@ mod evaling;
 fn main() {
     use std::io::{stdout, stdin, Write};
 
-    let mut c = evaling::context::Context::new();
+    let mut c = evaling::data::Context::new();
 
     loop {
         print!("> ");
