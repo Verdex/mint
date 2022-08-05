@@ -2,8 +2,8 @@
 pub mod context;
 
 mod pattern_matcher;
-mod vm;
 mod compiler;
+mod vm;
 
 pub mod evaler;
 pub mod display;
