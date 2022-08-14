@@ -7,4 +7,5 @@ edition = "2021"
 
 [dependencies]
 motif = { version = "0.1.0", path = "../motif" }
+denest = { version = "0.1.0", path = "../../util/denest" }
 error_reporter = { version = "0.1.0", path = "../../util/error_reporter" }
