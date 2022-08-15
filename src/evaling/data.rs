@@ -3,11 +3,11 @@ use std::collections::HashMap;
 use crate::ast::Data;
 use super::error::RuntimeError;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct FunctionAddress(usize);
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct InstructionIndex(usize);
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct RuntimeDataAddress(usize);
 
 #[derive(Debug)]
@@ -44,6 +44,14 @@ impl Context {
 
 #[derive(Debug)]
 pub enum Instruction {
+
+}
+
+pub struct Functions { 
+    funcs : Vec<Vec<Instruction>>,
+}
+
+impl Functions { 
 
 }
 
