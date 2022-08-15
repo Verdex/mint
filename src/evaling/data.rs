@@ -3,6 +3,14 @@ use std::collections::HashMap;
 use crate::ast::Data;
 use super::error::RuntimeError;
 
+#[derive(Debug)]
+pub struct FunctionAddress(usize);
+#[derive(Debug)]
+pub struct InstructionIndex(usize);
+#[derive(Debug)]
+pub struct RuntimeDataAddress(usize);
+
+#[derive(Debug)]
 pub struct Context {
     bound_variables : HashMap<String, Data>,
 }
@@ -32,4 +40,20 @@ impl Context {
         }
         Ok(())
     }
+}
+
+#[derive(Debug)]
+pub enum Instruction {
+
+}
+
+#[derive(Debug)]
+pub enum RuntimeData {
+    Function(FunctionAddress, RuntimeDataAddress), 
+    Context(Context),
+    Number(f64),
+    String(String),
+    Symbol(String),
+    List(Vec<RuntimeDataAddress>),
+    Tuple(Vec<RuntimeDataAddress>),
 }
