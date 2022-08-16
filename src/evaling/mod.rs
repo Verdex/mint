@@ -2,7 +2,8 @@
 pub mod data;
 
 mod pattern_matcher;
-mod compiler;
+pub mod compiler;
+pub mod vm;
 
 pub mod evaler;
 pub mod display;
