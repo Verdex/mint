@@ -1,12 +1,19 @@
 
-/*use crate::ast::{ Top
+
+use crate::ast::{ Top
                 , Data
                 , Expr
+                , Lambda 
+                , Let
                 };
 
-use super::context::{Context, RuntimeData};
+use super::data::Environment;
 
-pub fn compile(t : Top) -> RuntimeData {
+use super::error::CompileError;
 
+pub fn compile(t : Top, environment : &mut Environment) -> Result<(), CompileError> {
+
+    Ok(())
 }
-*/
+
+//fn compile_let(l : Let, environment : &mut Environment) -> Result<

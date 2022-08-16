@@ -47,14 +47,6 @@ pub enum Instruction {
 
 }
 
-pub struct Functions { 
-    funcs : Vec<Vec<Instruction>>,
-}
-
-impl Functions { 
-
-}
-
 #[derive(Debug)]
 pub enum RuntimeData {
     Function(FunctionAddress, RuntimeDataAddress), 
@@ -64,4 +56,12 @@ pub enum RuntimeData {
     Symbol(String),
     List(Vec<RuntimeDataAddress>),
     Tuple(Vec<RuntimeDataAddress>),
+}
+
+#[derive(Debug)]
+pub struct Environment {
+    pub functions : Vec<Vec<Instruction>>,
+    pub data : Vec<RuntimeData>,
+    pub context : Context,  
+    pub entry : FunctionAddress,
 }
