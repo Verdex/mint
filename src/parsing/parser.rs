@@ -7,6 +7,7 @@ use crate::ast::{ Token
                 , Expr
                 , Data
                 , Pat
+                , Lambda
                 };
 
 pub fn parse(tokens : &Vec<Token>) -> Result<Top, MatchError> {
@@ -314,11 +315,11 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
     seq!(lambda<'a>: &'a Token => Data = is_fun
                                        , params <= ! parse_params
                                        , ! Token::LCurl(_)
-                                       , top <= ! parse_top
+                                       , body <= ! parse_top
                                        , ! Token::RCurl(_)
                                        , {
 
-        Data::Lambda(params, Box::new(top))
+        Data::Lambda(Lambda { params, body: Box::new(body) } )
     });
 
     alt!(main<'a>: &'a Token => Data = number 

@@ -31,6 +31,14 @@ pub enum Token {
     At(TMeta),
 }
 
+// TODO see if we can get rid of clone
+
+#[derive(Debug, Clone)]
+pub struct Lambda {
+    pub params : Vec<Pat>,
+    pub body : Box<Top>,
+}
+
 #[derive(Debug, Clone)]
 pub enum Data {
     Number(f64),
@@ -39,7 +47,7 @@ pub enum Data {
     Variable(String),
     List(Vec<Data>),
     Tuple(Vec<Data>),
-    Lambda(Vec<Pat>, Box<Top>),
+    Lambda(Lambda),
 }
 
 #[derive(Debug, Clone)]

@@ -12,7 +12,7 @@ fn data_to_pattern(data : &Data) -> Result<Pat, RuntimeError> {
         Data::Variable(v) => Ok(Pat::Variable(v.into())), 
         Data::List(datas) => Ok(Pat::List( datas.iter().map(data_to_pattern).collect::<Result<_, RuntimeError>>()?, None)),
         Data::Tuple(datas) => Ok(Pat::Tuple(datas.iter().map(data_to_pattern).collect::<Result<_, RuntimeError>>()?)),
-        Data::Lambda(_, _) => Err(RuntimeError::CannotPatternMatchAgainstLambda),
+        Data::Lambda(_) => Err(RuntimeError::CannotPatternMatchAgainstLambda),
     }
 }
 
