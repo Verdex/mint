@@ -9,7 +9,6 @@ use crate::ast::{ Top
 
 use super::data::Environment;
 
-use super::error::CompileError;
 
 pub fn compile(t : Top, environment : &mut Environment) -> Result<(), CompileError> {
 
