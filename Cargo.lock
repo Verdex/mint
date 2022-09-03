@@ -17,8 +17,13 @@ dependencies = [
  "denest",
  "error_reporter",
  "motif",
+ "purple",
 ]
 
 [[package]]
 name = "motif"
+version = "0.1.0"
+
+[[package]]
+name = "purple"
 version = "0.1.0"
