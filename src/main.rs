@@ -2,6 +2,7 @@
 mod ast;
 mod parsing;
 mod evaling;
+mod compiling;
 
 fn main() {
     use std::io::{stdout, stdin, Write};
