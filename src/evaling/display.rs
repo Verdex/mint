@@ -1,32 +1,32 @@
 
-use crate::ast::Data;
+use crate::ast::Lit;
 use super::data::Context;
 use super::error::RuntimeError;
 
-pub fn print_data(data : &Data, context : &Context) -> Result<String, RuntimeError> {
+pub fn print_data(data : &Lit, context : &Context) -> Result<String, RuntimeError> {
     match data {
-        Data::Number(n) => Ok(n.to_string()),
-        Data::String(s) => Ok(format!("\"{}\"", s)),
-        Data::Symbol(s) => Ok(s.into()),
-        Data::Variable(var) => {
+        Lit::Number(n) => Ok(n.to_string()),
+        Lit::String(s) => Ok(format!("\"{}\"", s)),
+        Lit::Symbol(s) => Ok(s.into()),
+        Lit::Variable(var) => {
             let data = context.lookup(var)?;
             print_data(&data, context)
         },
-        Data::List(datas) => {
+        Lit::List(datas) => {
             let inner = datas.iter()
                              .map(|data| print_data(data, context))
                              .collect::<Result<Vec<String>, RuntimeError>>()?
                              .join(", ");
             Ok(format!("[{}]", inner))
         },
-        Data::Tuple(datas) => {
+        Lit::Tuple(datas) => {
             let inner = datas.iter()
                              .map(|data| print_data(data, context))
                              .collect::<Result<Vec<String>, RuntimeError>>()?
                              .join(", ");
             Ok(format!("{{{}}}", inner))
         },
-        Data::Lambda(_) => {
+        Lit::Lambda(_) => {
             Ok("FUNCTION".into())
         },
     }
@@ -39,7 +39,7 @@ mod test {
 
     #[test]
     fn should_return_err_for_unbound_variable_in_middle_of_list() {
-        let input = Data::List(vec![ Data::Number(1.0), Data::Variable("X".into()), Data::Number(1.0) ]);
+        let input = Lit::List(vec![ Lit::Number(1.0), Lit::Variable("X".into()), Lit::Number(1.0) ]);
         let context = Context::new();
         let output = print_data(&input, &context);
 

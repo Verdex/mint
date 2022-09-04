@@ -5,7 +5,7 @@ use crate::ast::{ Token
                 , Top 
                 , Let
                 , Expr
-                , Data
+                , Lit 
                 , Pat
                 , Lambda
                 };
@@ -155,7 +155,7 @@ group!(parse_pattern<'a>: &'a Token => Pat = |input| {
 });
 
 group!(parse_expr<'a>: &'a Token => Expr = |input| {
-    seq!(data<'a>: &'a Token => Expr = data <= parse_data, { Expr::Data(data) });
+    seq!(data<'a>: &'a Token => Expr = data <= parse_data, { Expr::Literal(data) });
 
     seq!(expr_comma<'a>: &'a Token => Expr = expr <= parse_expr, Token::Comma(_), { expr });
 
@@ -217,11 +217,11 @@ let X = fun(A) {
 
 */
 
-group!(parse_data<'a>: &'a Token => Data = |input| {
+group!(parse_data<'a>: &'a Token => Lit = |input| {
 
-    seq!(data_comma<'a>: &'a Token => Data = data <= parse_data, Token::Comma(_), { data });
+    seq!(data_comma<'a>: &'a Token => Lit = data <= parse_data, Token::Comma(_), { data });
 
-    seq!(data_list<'a>: &'a Token => Data = Token::LSquare(_)
+    seq!(data_list<'a>: &'a Token => Lit = Token::LSquare(_)
                                           , ds <= * data_comma 
                                           , last <= ? parse_data 
                                           , ! Token::RSquare(_)
@@ -232,10 +232,10 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
             Some(data) => datas.push(data),
             None => { },
         }
-        Data::List(datas)
+        Lit::List(datas)
     });
 
-    seq!(data_tuple<'a>: &'a Token => Data = Token::LCurl(_)
+    seq!(data_tuple<'a>: &'a Token => Lit = Token::LCurl(_)
                                           , ds <= * data_comma 
                                           , last <= ? parse_data 
                                           , ! Token::RCurl(_)
@@ -246,39 +246,39 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
             Some(data) => datas.push(data),
             None => { },
         }
-        Data::Tuple(datas)
+        Lit::Tuple(datas)
     });
 
-    seq!(number<'a>: &'a Token => Data = n <= Token::Number(_, _), { 
+    seq!(number<'a>: &'a Token => Lit = n <= Token::Number(_, _), { 
         if let Token::Number(_, number) = n {
-            Data::Number(*number) 
+            Lit::Number(*number) 
         }
         else {
             panic!("reflexive fail");
         }
     });
 
-    seq!(string<'a>: &'a Token => Data = s <= Token::String(_, _), { 
+    seq!(string<'a>: &'a Token => Lit = s <= Token::String(_, _), { 
         if let Token::String(_, string) = s {
-            Data::String(string.into()) 
+            Lit::String(string.into()) 
         }
         else {
             panic!("reflexive fail");
         }
     });
 
-    seq!(symbol<'a>: &'a Token => Data = symbol <= Token::LowerSymbol(_, _), { 
+    seq!(symbol<'a>: &'a Token => Lit = symbol <= Token::LowerSymbol(_, _), { 
         if let Token::LowerSymbol(_, sym) = symbol {
-            Data::Symbol(sym.into()) 
+            Lit::Symbol(sym.into()) 
         }
         else {
             panic!("reflexive fail");
         }
     });
 
-    seq!(variable<'a>: &'a Token => Data = variable <= Token::UpperSymbol(_, _), { 
+    seq!(variable<'a>: &'a Token => Lit = variable <= Token::UpperSymbol(_, _), { 
         if let Token::UpperSymbol(_, var) = variable {
-            Data::Variable(var.into()) 
+            Lit::Variable(var.into()) 
         }
         else {
             panic!("reflexive fail");
@@ -312,24 +312,24 @@ group!(parse_data<'a>: &'a Token => Data = |input| {
         pats
     });
 
-    seq!(lambda<'a>: &'a Token => Data = is_fun
+    seq!(lambda<'a>: &'a Token => Lit = is_fun
                                        , params <= ! parse_params
                                        , ! Token::LCurl(_)
                                        , body <= ! parse_top
                                        , ! Token::RCurl(_)
                                        , {
 
-        Data::Lambda(Lambda { params, body: Box::new(body) } )
+        Lit::Lambda(Lambda { params, body: Box::new(body) } )
     });
 
-    alt!(main<'a>: &'a Token => Data = number 
-                                     | string 
-                                     | lambda
-                                     | symbol 
-                                     | variable
-                                     | data_list
-                                     | data_tuple
-                                     );
+    alt!(main<'a>: &'a Token => Lit = number 
+                                    | string 
+                                    | lambda
+                                    | symbol 
+                                    | variable
+                                    | data_list
+                                    | data_tuple
+                                    );
 
     main(input)
 });
@@ -363,6 +363,6 @@ mod test {
 
     test_parse!(should_parse_number: "1.0" => Top { lets, expr } => {
         assert_eq!( lets.len(), 0 );
-        assert!( matches!( expr, Some(Expr::Data(Data::Number(1.0))) ) );
+        assert!( matches!( expr, Some(Expr::Literal(Lit::Number(1.0))) ) );
     });
 }

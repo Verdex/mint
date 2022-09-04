@@ -40,13 +40,13 @@ pub struct Lambda {
 }
 
 #[derive(Debug, Clone)]
-pub enum Data {
+pub enum Lit {
     Number(f64),
     String(String),
     Symbol(String),
     Variable(String),
-    List(Vec<Data>),
-    Tuple(Vec<Data>),
+    List(Vec<Lit>),
+    Tuple(Vec<Lit>),
     Lambda(Lambda),
 }
 
@@ -64,7 +64,7 @@ pub enum Pat {
 
 #[derive(Debug, Clone)]
 pub enum Expr {
-    Data(Data),
+    Literal(Lit),
     Call(Box<Expr>, Vec<Expr>),
     // match
 // TODO add if to match cases

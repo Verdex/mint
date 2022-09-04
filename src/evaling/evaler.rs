@@ -1,6 +1,6 @@
 
 use crate::ast::{ Top
-                , Data
+                , Lit 
                 , Expr
                 };
 
@@ -19,7 +19,7 @@ pub fn eval_2(main : FunctionAddress, context : RuntimeDataAddress) -> Result<Op
     Ok(None)
 }
 
-pub fn eval( input : Top, context : &mut Context ) -> Result<Option<Data>, RuntimeError> {
+pub fn eval( input : Top, context : &mut Context ) -> Result<Option<Lit>, RuntimeError> {
 
     for l in input.lets {
         if let Some(new_context) = pattern_matcher::pattern_match(&l.pattern, &eval_expr(l.expr, context)?, context)? {
@@ -38,9 +38,9 @@ pub fn eval( input : Top, context : &mut Context ) -> Result<Option<Data>, Runti
     }
 }
 
-fn eval_expr( expr : Expr, context : &Context ) -> Result<Data, RuntimeError> {
+fn eval_expr( expr : Expr, context : &Context ) -> Result<Lit, RuntimeError> {
     match expr {
-        Expr::Data(data) => Ok(data),
+        Expr::Literal(data) => Ok(data),
         Expr::Call(func, params) => panic!("TODO"),
         _ => panic!("TODO"),
     }

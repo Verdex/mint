@@ -1,30 +1,30 @@
 
-use crate::ast::{Pat, Data};
+use crate::ast::{Pat, Lit};
 use super::data::Context;
 use super::error::RuntimeError;
 
 
-fn data_to_pattern(data : &Data) -> Result<Pat, RuntimeError> {
+fn data_to_pattern(data : &Lit) -> Result<Pat, RuntimeError> {
     match data {
-        Data::Number(num) => Ok(Pat::Number(*num)),
-        Data::String(s) => Ok(Pat::String(s.into())),
-        Data::Symbol(s) => Ok(Pat::Symbol(s.into())),
-        Data::Variable(v) => Ok(Pat::Variable(v.into())), 
-        Data::List(datas) => Ok(Pat::List( datas.iter().map(data_to_pattern).collect::<Result<_, RuntimeError>>()?, None)),
-        Data::Tuple(datas) => Ok(Pat::Tuple(datas.iter().map(data_to_pattern).collect::<Result<_, RuntimeError>>()?)),
-        Data::Lambda(_) => Err(RuntimeError::CannotPatternMatchAgainstLambda),
+        Lit::Number(num) => Ok(Pat::Number(*num)),
+        Lit::String(s) => Ok(Pat::String(s.into())),
+        Lit::Symbol(s) => Ok(Pat::Symbol(s.into())),
+        Lit::Variable(v) => Ok(Pat::Variable(v.into())), 
+        Lit::List(datas) => Ok(Pat::List( datas.iter().map(data_to_pattern).collect::<Result<_, RuntimeError>>()?, None)),
+        Lit::Tuple(datas) => Ok(Pat::Tuple(datas.iter().map(data_to_pattern).collect::<Result<_, RuntimeError>>()?)),
+        Lit::Lambda(_) => Err(RuntimeError::CannotPatternMatchAgainstLambda),
     }
 }
 
-pub fn pattern_match( pattern : &Pat, data : &Data, context : &Context ) -> Result<Option<Context>, RuntimeError> {
+pub fn pattern_match( pattern : &Pat, data : &Lit, context : &Context ) -> Result<Option<Context>, RuntimeError> {
     match (pattern, data) {
         (Pat::Wild, _) => Ok(Some(Context::new())),
 
-        (Pat::Number(p_num), Data::Number(d_num)) if p_num == d_num => Ok(Some(Context::new())),
+        (Pat::Number(p_num), Lit::Number(d_num)) if p_num == d_num => Ok(Some(Context::new())),
 
-        (Pat::String(p_str), Data::String(d_str)) if p_str == d_str => Ok(Some(Context::new())),
+        (Pat::String(p_str), Lit::String(d_str)) if p_str == d_str => Ok(Some(Context::new())),
 
-        (Pat::Symbol(p_sym), Data::Symbol(d_sym)) if p_sym == d_sym => Ok(Some(Context::new())),
+        (Pat::Symbol(p_sym), Lit::Symbol(d_sym)) if p_sym == d_sym => Ok(Some(Context::new())),
 
         (Pat::At(var, pat), data) => {
             if let Some(new_context) = pattern_match(pat, data, context)? {
@@ -38,8 +38,8 @@ pub fn pattern_match( pattern : &Pat, data : &Data, context : &Context ) -> Resu
             }
         },
 
-        (Pat::Tuple(pats), Data::Tuple(datas)) if pats.len() != datas.len() => Ok(None),
-        (Pat::Tuple(pats), Data::Tuple(datas)) => {
+        (Pat::Tuple(pats), Lit::Tuple(datas)) if pats.len() != datas.len() => Ok(None),
+        (Pat::Tuple(pats), Lit::Tuple(datas)) => {
             let mut tuple_context = Context::new();
             for (p, d) in std::iter::zip(pats, datas) {
                 if let Some(new_context) = pattern_match(p, d, context)? {
@@ -66,10 +66,10 @@ pub fn pattern_match( pattern : &Pat, data : &Data, context : &Context ) -> Resu
             }
         },
 
-        (pat, Data::Variable(var)) => pattern_match(pat, &context.lookup(var)?, context),
+        (pat, Lit::Variable(var)) => pattern_match(pat, &context.lookup(var)?, context),
 
-        (Pat::List(pats, _), Data::List(datas)) if pats.len() > datas.len() => Ok(None),
-        (Pat::List(pats, Some(rest)), Data::List(datas)) => { 
+        (Pat::List(pats, _), Lit::List(datas)) if pats.len() > datas.len() => Ok(None),
+        (Pat::List(pats, Some(rest)), Lit::List(datas)) => { 
             let mut list_context = Context::new();
             let mut rest_data = vec![];
             for i in 0..datas.len() {
@@ -85,7 +85,7 @@ pub fn pattern_match( pattern : &Pat, data : &Data, context : &Context ) -> Resu
                     rest_data.push(datas[i].clone()); // NOTE:  Probably not great for memory usage
                 }
             }
-            if let Some(new_context) = pattern_match(rest, &Data::List(rest_data), context)? {
+            if let Some(new_context) = pattern_match(rest, &Lit::List(rest_data), context)? {
                 list_context.merge(new_context)?;
             }
             else {
@@ -93,7 +93,7 @@ pub fn pattern_match( pattern : &Pat, data : &Data, context : &Context ) -> Resu
             }
             Ok(Some(list_context))
         },
-        (Pat::List(pats, None), Data::List(datas)) => {
+        (Pat::List(pats, None), Lit::List(datas)) => {
             let mut list_context = Context::new();
             for (p, d) in std::iter::zip(pats, datas) {
                 if let Some(new_context) = pattern_match(p, d, context)? {

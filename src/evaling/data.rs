@@ -1,6 +1,6 @@
 
 use std::collections::HashMap;
-use crate::ast::Data;
+use crate::ast::Lit;
 use super::error::RuntimeError;
 
 #[derive(Debug, Clone, Copy)]
@@ -12,7 +12,7 @@ pub struct RuntimeDataAddress(usize);
 
 #[derive(Debug)]
 pub struct Context {
-    bound_variables : HashMap<String, Data>,
+    bound_variables : HashMap<String, Lit>,
 }
 
 impl Context {
@@ -20,14 +20,14 @@ impl Context {
         Context { bound_variables : HashMap::new() }
     }
 
-    pub fn lookup(&self, name : &str) -> Result<Data, RuntimeError> {
+    pub fn lookup(&self, name : &str) -> Result<Lit, RuntimeError> {
         match self.bound_variables.get(name) {
             Some(data) => Ok(data.clone()),
             None => Err(RuntimeError::VariableNotFound(name.into())),
         }
     }
 
-    pub fn set(&mut self, name : &str, data : Data) -> Result<(), RuntimeError> {
+    pub fn set(&mut self, name : &str, data : Lit) -> Result<(), RuntimeError> {
         match self.bound_variables.get(name) {
             None => { self.bound_variables.insert(name.into(), data); Ok(()) },
             Some(_) => Err(RuntimeError::CannotSetBoundVariable(name.into())),
