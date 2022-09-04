@@ -42,10 +42,6 @@ impl Context {
     }
 }
 
-#[derive(Debug)]
-pub enum Instruction {
-
-}
 
 #[derive(Debug)]
 pub enum RuntimeData {
