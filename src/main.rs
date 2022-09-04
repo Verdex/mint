@@ -2,6 +2,7 @@
 mod ast;
 mod parsing;
 mod evaling;
+mod runtime;
 mod compiling;
 
 fn main() {
