@@ -56,7 +56,7 @@ pub enum RuntimeData {
 
 #[derive(Debug)]
 pub struct Environment {
-    pub functions : Vec<Vec<Instruction>>,
+    pub functions : Vec<Vec<usize>>,
     pub data : Vec<RuntimeData>,
     pub context : Context,  
     pub entry : FunctionAddress,
