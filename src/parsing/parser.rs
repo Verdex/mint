@@ -155,7 +155,7 @@ group!(parse_pattern<'a>: &'a Token => Pat = |input| {
 });
 
 group!(parse_expr<'a>: &'a Token => Expr = |input| {
-    seq!(data<'a>: &'a Token => Expr = data <= parse_data, { Expr::Literal(data) });
+    seq!(lit<'a>: &'a Token => Expr = lit <= parse_literal, { Expr::Literal(lit) });
 
     seq!(expr_comma<'a>: &'a Token => Expr = expr <= parse_expr, Token::Comma(_), { expr });
 
@@ -173,7 +173,7 @@ group!(parse_expr<'a>: &'a Token => Expr = |input| {
         exprs
     });
 
-    alt!(main<'a>: &'a Token => Expr = data);
+    alt!(main<'a>: &'a Token => Expr = lit);
 
     seq!(call<'a>: &'a Token => Expr = m <= main, calls <= * param_list, {
         if calls.len() == 0 {
@@ -217,36 +217,36 @@ let X = fun(A) {
 
 */
 
-group!(parse_data<'a>: &'a Token => Lit = |input| {
+group!(parse_literal<'a>: &'a Token => Lit = |input| {
 
-    seq!(data_comma<'a>: &'a Token => Lit = data <= parse_data, Token::Comma(_), { data });
+    seq!(lit_comma<'a>: &'a Token => Lit = lit <= parse_literal, Token::Comma(_), { lit });
 
-    seq!(data_list<'a>: &'a Token => Lit = Token::LSquare(_)
-                                          , ds <= * data_comma 
-                                          , last <= ? parse_data 
-                                          , ! Token::RSquare(_)
-                                          , {
+    seq!(lit_list<'a>: &'a Token => Lit = Token::LSquare(_)
+                                        , ls <= * lit_comma 
+                                        , last <= ? parse_literal
+                                        , ! Token::RSquare(_)
+                                        , {
 
-        let mut datas = ds;
+        let mut lits = ls;
         match last {
-            Some(data) => datas.push(data),
+            Some(lit) => lits.push(lit),
             None => { },
         }
-        Lit::List(datas)
+        Lit::List(lits)
     });
 
-    seq!(data_tuple<'a>: &'a Token => Lit = Token::LCurl(_)
-                                          , ds <= * data_comma 
-                                          , last <= ? parse_data 
-                                          , ! Token::RCurl(_)
-                                          , {
+    seq!(lit_tuple<'a>: &'a Token => Lit = Token::LCurl(_)
+                                         , ls <= * lit_comma 
+                                         , last <= ? parse_literal
+                                         , ! Token::RCurl(_)
+                                         , {
 
-        let mut datas = ds;
+        let mut lits = ls;
         match last {
-            Some(data) => datas.push(data),
+            Some(lit) => lits.push(lit),
             None => { },
         }
-        Lit::Tuple(datas)
+        Lit::Tuple(lits)
     });
 
     seq!(number<'a>: &'a Token => Lit = n <= Token::Number(_, _), { 
@@ -327,8 +327,8 @@ group!(parse_data<'a>: &'a Token => Lit = |input| {
                                     | lambda
                                     | symbol 
                                     | variable
-                                    | data_list
-                                    | data_tuple
+                                    | lit_list
+                                    | lit_tuple
                                     );
 
     main(input)
