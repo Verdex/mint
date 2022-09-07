@@ -1,8 +1,8 @@
-
 use std::collections::HashMap;
 
 use purple::data::*;
 use crate::runtime::*;
+use crate::ast::*;
 
 use super::error::CompileError;
 
@@ -18,4 +18,6 @@ type P = HashMap<Func, Vec<I>>;
 // TODO need to be able to call pre-existing function by name not Func
 // TODO need to be able to use pre-existing data
 
-pub fn compile(top : &Top, program : &mut P) -> Result<Vec<I>, CompileError>
+pub fn compile(top : &Top, program : &mut P) -> Result<Vec<I>, CompileError> {
+    Err(CompileError::Todo)
+}
