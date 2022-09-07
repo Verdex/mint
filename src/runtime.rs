@@ -1,11 +1,16 @@
 
-/*#[derive(Debug)]
+use purple::data::Func;
+
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+pub struct HeapAddress(pub usize);
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum RuntimeData {
-    Function(FunctionAddress, RuntimeDataAddress), 
-    Context(Context),
+    Address(HeapAddress),
+    Function(Func),
     Number(f64),
     String(String),
     Symbol(String),
-    List(Vec<RuntimeDataAddress>),
-    Tuple(Vec<RuntimeDataAddress>),
-}*/
+    List(Vec<RuntimeData>),
+    Tuple(Vec<RuntimeData>),
+}
