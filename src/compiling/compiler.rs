@@ -18,5 +18,6 @@ type P = HashMap<Func, Vec<I>>;
 // The address_map maps strings to a value in the heap
 
 pub fn compile(top : &Top, program : &mut P, address_map : &mut HashMap<String, HeapAddress> ) -> Result<Vec<I>, CompileError> {
+    // TODO:  How is address_map populated in the first place?  Not here ...
     Err(CompileError::Todo)
 }
