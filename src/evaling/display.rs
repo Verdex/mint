@@ -1,9 +1,20 @@
 
-use crate::ast::Lit;
 use super::data::Context;
 use super::error::RuntimeError;
 
-pub fn print_data(data : &Lit, context : &Context) -> Result<String, RuntimeError> {
+pub fn print_data(data : &RuntimeData) -> String {
+    use RuntimeData;
+    match data { 
+        Address(x) => format!("Address: {}", x),
+        Function(x) => format!("Function: {}", x),
+        Number(x) => format!("Number: {}", x),
+        String(x) => format!("String: {}", x),
+        Symbol(x) => format!("Symbol: {}", x),
+        List(x) => format!("List "),
+        Tuple(x),
+    }
+}
+/*pub fn print_data(data : &Lit, context : &Context) -> Result<String, RuntimeError> {
     match data {
         Lit::Number(n) => Ok(n.to_string()),
         Lit::String(s) => Ok(format!("\"{}\"", s)),
@@ -30,7 +41,7 @@ pub fn print_data(data : &Lit, context : &Context) -> Result<String, RuntimeErro
             Ok("FUNCTION".into())
         },
     }
-}
+}*/
 
 
 #[cfg(test)]

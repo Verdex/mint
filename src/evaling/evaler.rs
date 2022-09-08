@@ -1,25 +1,14 @@
 
-use crate::ast::{ Top
-                , Lit 
-                , Expr
-                };
 
-use super::data::{ Context
-                 , RuntimeData
-                 , FunctionAddress
-                 , RuntimeDataAddress
-                 , InstructionIndex
-                 };
+use crate::ast::*;
+
+use super::data::Context;
+
 use super::error::RuntimeError;
 use super::pattern_matcher;
 
-// TODO:  Need a stack for contexts and the index of the instruction vector of the calling function
 
-pub fn eval_2(main : FunctionAddress, context : RuntimeDataAddress) -> Result<Option<RuntimeData>, RuntimeError> {
-    Ok(None)
-}
-
-pub fn eval( input : Top, context : &mut Context ) -> Result<Option<Lit>, RuntimeError> {
+pub fn eval( input : Top, context : &mut Context ) -> Result<Option<String>, Box<dyn std::error::Error>> {
 
     for l in input.lets {
         if let Some(new_context) = pattern_matcher::pattern_match(&l.pattern, &eval_expr(l.expr, context)?, context)? {
