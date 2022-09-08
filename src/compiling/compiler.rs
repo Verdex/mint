@@ -52,17 +52,28 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
     match input {
         Lit::Number(x) => { 
             let s = c.symbol();
-            return Ok((s, vec![
+            Ok((s, vec![
                 Instr::LoadValue(s, RuntimeData::Number(*x))
-            ]));
+            ]))
         },
-        Lit::String(x) => { },
-        Lit::Symbol(x) => { },
-        Lit::Variable(x) => { },
-        Lit::List(x) => { },
-        Lit::Tuple(x) => { },
-        Lit::Lambda(x) => { },
+        Lit::String(x) => {
+            Err(CompileError::Todo)
+        },
+        Lit::Symbol(x) => {
+            Err(CompileError::Todo)
+        },
+        Lit::Variable(x) => {
+            Err(CompileError::Todo)
+        },
+        Lit::List(x) => {
+            Err(CompileError::Todo)
+        },
+        Lit::Tuple(x) => {
+            Err(CompileError::Todo)
+        },
+        Lit::Lambda(x) => {
+            Err(CompileError::Todo)
+        },
     }
 
-    Err(CompileError::Todo)
 }
