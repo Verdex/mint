@@ -1,18 +1,21 @@
 
-use crate::ast::{Pat, Lit};
-use crate::runtime::RuntimeData;
+use std::collections::HashMap;
 
-/*fn data_to_pattern(data : &Lit) -> Result<Pat, RuntimeError> {
-    match data {
-        Lit::Number(num) => Ok(Pat::Number(*num)),
-        Lit::String(s) => Ok(Pat::String(s.into())),
-        Lit::Symbol(s) => Ok(Pat::Symbol(s.into())),
-        Lit::Variable(v) => Ok(Pat::Variable(v.into())), 
-        Lit::List(datas) => Ok(Pat::List( datas.iter().map(data_to_pattern).collect::<Result<_, RuntimeError>>()?, None)),
-        Lit::Tuple(datas) => Ok(Pat::Tuple(datas.iter().map(data_to_pattern).collect::<Result<_, RuntimeError>>()?)),
-        Lit::Lambda(_) => Err(RuntimeError::CannotPatternMatchAgainstLambda),
-    }
-}*/
+use crate::ast::{Pat, Lit};
+use crate::runtime::*;
+
+use super::error::*;
+
+pub enum MatchResult {
+    Env(Vec<BoundData>),
+    NoMatch,
+    Fatal(RuntimeError),
+}
+
+pub struct BoundData {
+    name : String,
+    data : RuntimeData,
+}
 
     /*Address(HeapAddress),
     Function(Func),
@@ -32,14 +35,34 @@ use crate::runtime::RuntimeData;
     Variable(String),
     At(String, Box<Pat>),*/
 
-pub fn pattern_match( pattern : &Pat, data : &RuntimeData ) -> Option<Vec<(String, RuntimeData)>> {
+pub fn pattern_match( pattern : &Pat, data : &RuntimeData ) -> MatchResult {
+    use MatchResult::*;
+    use std::iter::zip;
     match (pattern, data) {
-        (Pat::Wild, _) => Some(vec![]),
-        (Pat::Number(a), RuntimeData::Number(b)) if a == b => Some(vec![]),
-        (Pat::String(a), RuntimeData::String(b)) if a == b => Some(vec![]),
-        (Pat::Symbol(a), RuntimeData::Symbol(b)) if a == b => Some(vec![]),
-        //(Pat::Tuple(a), RuntimeData::Tuple(b)) if a.len() != b.len() => 
-        _ => None,
+        (Pat::Wild, _) => Env(vec![]),
+        (Pat::Number(a), RuntimeData::Number(b)) if a == b => Env(vec![]),
+        (Pat::String(a), RuntimeData::String(b)) if a == b => Env(vec![]),
+        (Pat::Symbol(a), RuntimeData::Symbol(b)) if a == b => Env(vec![]),
+        (Pat::Tuple(a), RuntimeData::Tuple(b)) if a.len() != b.len() => NoMatch, 
+        (Pat::Tuple(a), RuntimeData::Tuple(b)) => {
+            let mut all = HashMap::new();
+            for (pat, data) in zip(a, b) {
+                match pattern_match(pat, data) {
+                    NoMatch => { return NoMatch; },
+                    Fatal(e) => { return Fatal(e); },
+                    Env(env) => {
+                        for e in env {
+                            if all.contains_key(&e.name) {
+                                return Fatal(RuntimeError::CannotSetBoundVariable(e.name));
+                            }
+                            all.insert(e.name, e.data);
+                        }
+                    },
+                }
+            }
+            Env(all.into_iter().map(|kvp| BoundData { name: kvp.0, data: kvp.1 }).collect::<Vec<_>>())
+        },
+        _ => NoMatch,
     }
 }
 
