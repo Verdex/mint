@@ -1,10 +1,8 @@
 
 use crate::ast::{Pat, Lit};
-use super::data::Context;
-use super::error::RuntimeError;
+use crate::runtime::RuntimeData;
 
-
-fn data_to_pattern(data : &Lit) -> Result<Pat, RuntimeError> {
+/*fn data_to_pattern(data : &Lit) -> Result<Pat, RuntimeError> {
     match data {
         Lit::Number(num) => Ok(Pat::Number(*num)),
         Lit::String(s) => Ok(Pat::String(s.into())),
@@ -14,9 +12,38 @@ fn data_to_pattern(data : &Lit) -> Result<Pat, RuntimeError> {
         Lit::Tuple(datas) => Ok(Pat::Tuple(datas.iter().map(data_to_pattern).collect::<Result<_, RuntimeError>>()?)),
         Lit::Lambda(_) => Err(RuntimeError::CannotPatternMatchAgainstLambda),
     }
+}*/
+
+    /*Address(HeapAddress),
+    Function(Func),
+    Number(f64),
+    String(String),
+    Symbol(String),
+    List(Vec<RuntimeData>),
+    Tuple(Vec<RuntimeData>),*/
+
+
+    /*Wild,
+    Number(f64),
+    String(String),
+    Symbol(String),
+    List(Vec<Pat>, Option<Box<Pat>>),
+    Tuple(Vec<Pat>),
+    Variable(String),
+    At(String, Box<Pat>),*/
+
+pub fn pattern_match( pattern : &Pat, data : &RuntimeData ) -> Option<Vec<(String, RuntimeData)>> {
+    match (pattern, data) {
+        (Pat::Wild, _) => Some(vec![]),
+        (Pat::Number(a), RuntimeData::Number(b)) if a == b => Some(vec![]),
+        (Pat::String(a), RuntimeData::String(b)) if a == b => Some(vec![]),
+        (Pat::Symbol(a), RuntimeData::Symbol(b)) if a == b => Some(vec![]),
+        //(Pat::Tuple(a), RuntimeData::Tuple(b)) if a.len() != b.len() => 
+        _ => None,
+    }
 }
 
-pub fn pattern_match( pattern : &Pat, data : &Lit, context : &Context ) -> Result<Option<Context>, RuntimeError> {
+/*pub fn pattern_match( pattern : &Pat, data : &RuntimeData, context : &Context ) -> Result<Option<Context>, RuntimeError> {
     match (pattern, data) {
         (Pat::Wild, _) => Ok(Some(Context::new())),
 
@@ -109,7 +136,7 @@ pub fn pattern_match( pattern : &Pat, data : &Lit, context : &Context ) -> Resul
         _ => Ok(None) 
 
     }
-}
+}*/
 
 #[cfg(test)]
 mod test {
