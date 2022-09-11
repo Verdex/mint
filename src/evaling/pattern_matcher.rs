@@ -35,9 +35,13 @@ pub struct BoundData {
     Variable(String),
     At(String, Box<Pat>),*/
 
+fn list_pattern_match( pattern : &Pat, data : Vec<&RuntimeData> ) -> MatchResult {
+    MatchResult::NoMatch
+}
+
 pub fn pattern_match( pattern : &Pat, data : &RuntimeData ) -> MatchResult {
     use MatchResult::*;
-    use std::iter::zip;
+    use std::iter::{zip, repeat};
     match (pattern, data) {
         (Pat::Wild, _) => Env(vec![]),
         (Pat::Number(a), RuntimeData::Number(b)) if a == b => Env(vec![]),
@@ -58,6 +62,64 @@ pub fn pattern_match( pattern : &Pat, data : &RuntimeData ) -> MatchResult {
                             all.insert(e.name, e.data);
                         }
                     },
+                }
+            }
+            Env(all.into_iter().map(|kvp| BoundData { name: kvp.0, data: kvp.1 }).collect::<Vec<_>>())
+        },
+        // NOTE:  If there exists more patterns than items in the target list, then indicate NoMatch.
+        (Pat::List(a, _), RuntimeData::List(b)) if a.len() > b.len() => NoMatch,
+        // NOTE:  If there is no 'rest' pattern, then the lengths need to match.
+        (Pat::List(a, None), RuntimeData::List(b)) if a.len() != b.len() => NoMatch,
+        (Pat::List(a, None), RuntimeData::List(b)) => {
+            let mut all = HashMap::new();
+            for (pat, data) in zip(a, b) {
+                match pattern_match(pat, data) {
+                    NoMatch => { return NoMatch; },
+                    Fatal(e) => { return Fatal(e); },
+                    Env(env) => {
+                        for e in env {
+                            if all.contains_key(&e.name) {
+                                return Fatal(RuntimeError::CannotSetBoundVariable(e.name));
+                            }
+                            all.insert(e.name, e.data);
+                        }
+                    },
+                }
+            }
+            Env(all.into_iter().map(|kvp| BoundData { name: kvp.0, data: kvp.1 }).collect::<Vec<_>>())
+        },
+        (Pat::List(a, Some(rest)), RuntimeData::List(b)) => {
+            let p = a.iter().map(|x| Some(x)).chain(repeat(None));
+            let (matches, rest_data) : (Vec<_>, Vec<_>) = zip(p, b).partition(|(a, _)| a.is_some());
+
+            let mut all = HashMap::new();
+            for (pat, data) in matches {
+                match pattern_match(pat.unwrap(), data) {
+                    NoMatch => { return NoMatch; },
+                    Fatal(e) => { return Fatal(e); },
+                    Env(env) => {
+                        for e in env {
+                            if all.contains_key(&e.name) {
+                                return Fatal(RuntimeError::CannotSetBoundVariable(e.name));
+                            }
+                            all.insert(e.name, e.data);
+                        }
+                    },
+                }
+            }
+
+            let rest_data = rest_data.iter().map(|(_, b)| *b).collect::<Vec<&RuntimeData>>();
+
+            match list_pattern_match(rest, rest_data) {
+                NoMatch => { return NoMatch; },
+                Fatal(e) => { return Fatal(e); },
+                Env(env) => {
+                    for e in env {
+                        if all.contains_key(&e.name) {
+                            return Fatal(RuntimeError::CannotSetBoundVariable(e.name));
+                        }
+                        all.insert(e.name, e.data);
+                    }
                 }
             }
             Env(all.into_iter().map(|kvp| BoundData { name: kvp.0, data: kvp.1 }).collect::<Vec<_>>())
