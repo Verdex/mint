@@ -35,9 +35,6 @@ pub struct BoundData {
     Variable(String),
     At(String, Box<Pat>),*/
 
-fn list_pattern_match( pattern : &Pat, data : Vec<&RuntimeData> ) -> MatchResult {
-    MatchResult::NoMatch
-}
 
 pub fn pattern_match( pattern : &Pat, data : &RuntimeData ) -> MatchResult {
     use MatchResult::*;
@@ -108,9 +105,9 @@ pub fn pattern_match( pattern : &Pat, data : &RuntimeData ) -> MatchResult {
                 }
             }
 
-            let rest_data = rest_data.iter().map(|(_, b)| *b).collect::<Vec<&RuntimeData>>();
+            let rest_data = rest_data.into_iter().map(|(_, b)| b.clone()).collect();
 
-            match list_pattern_match(rest, rest_data) {
+            match pattern_match(rest, &RuntimeData::List(rest_data)) {
                 NoMatch => { return NoMatch; },
                 Fatal(e) => { return Fatal(e); },
                 Env(env) => {
