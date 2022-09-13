@@ -41,9 +41,23 @@ pub fn pattern_match( pattern : &Pat, data : &RuntimeData ) -> MatchResult {
     use std::iter::{zip, repeat};
     match (pattern, data) {
         (Pat::Wild, _) => Env(vec![]),
+        (Pat::Variable(a), b) => Env(vec![BoundData{ name: a.clone(), data: b.clone()}]),
         (Pat::Number(a), RuntimeData::Number(b)) if a == b => Env(vec![]),
         (Pat::String(a), RuntimeData::String(b)) if a == b => Env(vec![]),
         (Pat::Symbol(a), RuntimeData::Symbol(b)) if a == b => Env(vec![]),
+        (Pat::At(name, pat), b) => {
+            match pattern_match(pat, b) {
+                NoMatch => NoMatch,
+                Fatal(e) => Fatal(e),
+                Env(mut env) => {
+                    if env.iter().any(|x| x.name == *name) {
+                        return Fatal(RuntimeError::CannotSetBoundVariable(name.clone()));
+                    }
+                    env.push(BoundData{ name: name.clone(), data: b.clone() });
+                    Env(env)
+                }
+            }
+        },
         (Pat::Tuple(a), RuntimeData::Tuple(b)) if a.len() != b.len() => NoMatch, 
         (Pat::Tuple(a), RuntimeData::Tuple(b)) => {
             let mut all = HashMap::new();
