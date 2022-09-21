@@ -13,8 +13,8 @@ pub enum MatchResult {
 }
 
 pub struct BoundData {
-    name : String,
-    data : RuntimeData,
+    pub name : String,
+    pub data : RuntimeData,
 }
 
 pub fn pattern_match( pattern : &Pat, data : &RuntimeData ) -> MatchResult {
