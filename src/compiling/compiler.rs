@@ -42,10 +42,14 @@ pub fn compile(input : &Expr, address_map : &M, functions : &mut Fs) -> Result<V
     let mut func = functions.keys().map(|k| k.0).max().unwrap_or(0);
     let mut c = C::new(func);
     match input {
-        Expr::Literal(lit) => { },
-        Expr::Call(func_expr, params) => { },
+        Expr::Literal(lit) => {
+            let (sym, mut prog) = compile_literal(&mut c, &lit, address_map, functions)?;
+            let mut x = vec![ Instr::Return(sym) ];
+            prog.append(&mut x);
+            Ok(prog)
+        },
+        Expr::Call(func_expr, params) => Err(CompileError::Todo),
     }
-    Err(CompileError::Todo)
 }
 
 fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut Fs) -> Result<(Symbol, Vec<I>), CompileError> {
