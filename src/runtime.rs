@@ -2,7 +2,7 @@
 use purple::data::Func;
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
-pub struct HeapAddress(pub usize);
+pub struct HeapAddress(pub u64);
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum RuntimeData {
