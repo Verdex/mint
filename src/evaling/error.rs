@@ -4,7 +4,7 @@
 pub enum RuntimeError {
     VariableNotFound(String),
     CannotSetBoundVariable(String),
-    CannotPatternMatchAgainstLambda,
+    CannotPatternMatchAgainstLambda, // TODO:  This probably gets removed?
     PatternMatchFailed,
 }
 
