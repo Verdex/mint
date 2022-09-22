@@ -61,16 +61,26 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
             ]))
         },
         Lit::String(x) => {
-            Err(CompileError::Todo)
+            let s = c.symbol();
+            Ok((s, vec![
+                Instr::LoadValue(s, RuntimeData::String(x.to_string()))
+            ]))
         },
         Lit::Symbol(x) => {
-            Err(CompileError::Todo)
+            let s = c.symbol();
+            Ok((s, vec![
+                Instr::LoadValue(s, RuntimeData::Symbol(x.to_string()))
+            ]))
         },
         Lit::Variable(x) => {
             Err(CompileError::Todo)
         },
         Lit::List(x) => {
-            Err(CompileError::Todo)
+            let y = x.iter().map(|d| compile_literal(c, d, address_map, functions)).collect::<Result<Vec<_>, _>>()?;
+            let ret_sym = c.symbol();
+            let mut ret = vec![ Instr::LoadValue(ret_sym, RuntimeData::List(vec![])) ];
+            //ret.push( Instr::)
+            Ok((ret_sym, ret))
         },
         Lit::Tuple(x) => {
             Err(CompileError::Todo)
