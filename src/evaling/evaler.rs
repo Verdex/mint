@@ -30,18 +30,13 @@ pub fn eval( input : Top, context : &mut Context ) -> Result<Option<String>, Box
             MatchResult::Fatal(e) => { return Err(Box::new(e)); },
             MatchResult::NoMatch => { return Err(Box::new(RuntimeError::PatternMatchFailed)); },
             MatchResult::Env(bound) => { 
-                // TODO:  Need a better way to get an unused heap address where it doesn't just start returning
-                // bad results at some point. 
-                let mut address = context.heap.keys().map(|x| x.0).max().unwrap() + 1;
                 for b in bound {
-                    context.heap.insert(HeapAddress(address), b.data);
-
                     if context.address_map.contains_key(&b.name) {
                         return Err(Box::new(RuntimeError::CannotSetBoundVariable(b.name)));
                     }
 
-                    context.address_map.insert(b.name, HeapAddress(address));
-                    address += 1;
+                    let address = context.heap.insert_new(b.data);
+                    context.address_map.insert(b.name, address);
                 }
             },
         }

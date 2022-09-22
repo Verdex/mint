@@ -7,7 +7,7 @@ use crate::ast::*;
 use super::error::CompileError;
 
 
-type I = Instr<RuntimeData, HashMap<HeapAddress, RuntimeData>>;
+type I = Instr<RuntimeData, Heap>;
 type Fs = HashMap<Func, Vec<I>>; 
 type M = HashMap<String, HeapAddress>;
 
