@@ -78,9 +78,50 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
         Lit::List(x) => {
             let y = x.iter().map(|d| compile_literal(c, d, address_map, functions)).collect::<Result<Vec<_>, _>>()?;
             let ret_sym = c.symbol();
-            let mut ret = vec![ Instr::LoadValue(ret_sym, RuntimeData::List(vec![])) ];
-            //ret.push( Instr::)
-            Ok((ret_sym, ret))
+            let ret_address = c.symbol();
+            let mut ret : Vec<I> = vec![ Instr::LoadValue(ret_sym, RuntimeData::List(vec![])) ];
+            ret.push( Instr::LoadFromSysCall(ret_address, Box::new(
+                move |locals, heap| {
+                    if let Data::Value(list) = locals.get(&ret_sym)? {
+                        let address = heap.insert_new(list);
+                        Ok(Data::Value(RuntimeData::Address(address)))
+                    }
+                    else {
+                        panic!("!"); // TODO
+                    }
+                }
+            )));
+
+            let (item_names, progs) : (Vec<_>, Vec<_>) = y.into_iter().unzip(); // TODO is this possible ahead of time?
+            let mut progs = progs.into_iter().flatten().collect::<Vec<_>>();
+
+            ret.append(&mut progs);
+
+            let mut item_names : Vec<I> = item_names.into_iter().map(|n| Instr::<RuntimeData, Heap>::SysCall(Box::new(
+                move |locals, heap| {
+                    if let (Data::Value(target), Data::Value(RuntimeData::Address(list_address))) 
+                        = (locals.get(&n)?, locals.get(&ret_address)?) {
+
+                        let list = heap.get(list_address).unwrap(); // TODO
+
+                        if let RuntimeData::List(l) = list {
+                            l.push(target);
+                        }
+                        else {
+                            panic!("!"); // TODO 
+                        }
+
+                        Ok(())
+                    }
+                    else {
+                        panic!("!"); // TODO
+                    }
+                }
+            ))).collect();
+
+            ret.append(&mut item_names);
+
+            Ok((ret_address, ret))
         },
         Lit::Tuple(x) => {
             Err(CompileError::Todo)
@@ -89,5 +130,4 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
             Err(CompileError::Todo)
         },
     }
-
 }
