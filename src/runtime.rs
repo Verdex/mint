@@ -27,6 +27,10 @@ impl Heap {
         Heap { heap : HashMap::new(), new_address : 0 }
     }
 
+    pub fn get(&mut self, address : HeapAddress) -> Option<&mut RuntimeData> {
+        self.heap.get_mut(&address)
+    }
+
     pub fn insert_new(&mut self, data : RuntimeData) -> HeapAddress {
         let ret = HeapAddress(self.new_address);
         self.heap.insert(ret, data);

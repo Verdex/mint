@@ -51,6 +51,10 @@ pub fn eval( input : Top, context : &mut Context ) -> Result<Option<String>, Box
         context.functions.insert(Func(0), program); 
         let result = purple::run(&context.functions, &mut context.heap)?;
         match result {
+            Some(Data::Value(RuntimeData::Address(address))) => {
+                let deref = context.heap.get(address).unwrap(); // TODO
+                Ok(Some(print_data(deref)))
+            },
             Some(Data::Value(v)) => Ok(Some(print_data(&v))),
             Some(Data::Func(f)) => Ok(Some(print_data(&RuntimeData::Function(f)))),
             None => Ok(None),
