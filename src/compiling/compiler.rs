@@ -52,8 +52,6 @@ pub fn compile(input : &Expr, address_map : &M, functions : &mut Fs) -> Result<V
     }
 }
 
-// TODO:  There might be a different way to handle the return symbol thing.
-// TODO:  I think we only need address_map for Variable and we probably don't need functions at all.
 fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut Fs) -> Result<(Symbol, Vec<I>), CompileError> {
     match input {
         Lit::Number(x) => { 
