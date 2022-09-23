@@ -87,7 +87,10 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
                         Ok(Data::Value(RuntimeData::Address(address)))
                     }
                     else {
-                        panic!("!"); // TODO
+                        Err(Box::new(DynamicError::TypeMismatch { 
+                            expected: "Data::Value".into(),
+                            observed: "?".into(),
+                        }))
                     }
                 }
             )));
@@ -102,19 +105,25 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
                     if let (Data::Value(target), Data::Value(RuntimeData::Address(list_address))) 
                         = (locals.get(&n)?, locals.get(&ret_address)?) {
 
-                        let list = heap.get(list_address).unwrap(); // TODO
+                        let list = heap.get(list_address).ok_or(Box::new(DynamicError::CannotFindHeapAddress))?;
 
                         if let RuntimeData::List(l) = list {
                             l.push(target);
                         }
                         else {
-                            panic!("!"); // TODO 
+                            return Err(Box::new(DynamicError::TypeMismatch {
+                                expected: "RuntimeData::List".into(),
+                                observed: "?".into(),
+                            }));
                         }
 
                         Ok(())
                     }
                     else {
-                        panic!("!"); // TODO
+                        Err(Box::new(DynamicError::TypeMismatch {
+                            expected: "Data::Value and Data::Value(RuntimeData::Address)".into(),
+                            observed: "?".into(),
+                        }))
                     }
                 }
             ))).collect();
