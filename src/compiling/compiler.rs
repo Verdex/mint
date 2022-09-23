@@ -105,7 +105,7 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
                     if let (Data::Value(target), Data::Value(RuntimeData::Address(list_address))) 
                         = (locals.get(&n)?, locals.get(&ret_address)?) {
 
-                        let list = heap.get(list_address).ok_or(Box::new(DynamicError::CannotFindHeapAddress))?;
+                        let list = heap.get_mut(list_address).ok_or(Box::new(DynamicError::CannotFindHeapAddress))?;
 
                         if let RuntimeData::List(l) = list {
                             l.push(target);
@@ -162,7 +162,7 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
                     if let (Data::Value(target), Data::Value(RuntimeData::Address(list_address))) 
                         = (locals.get(&n)?, locals.get(&ret_address)?) {
 
-                        let list = heap.get(list_address).ok_or(Box::new(DynamicError::CannotFindHeapAddress))?;
+                        let list = heap.get_mut(list_address).ok_or(Box::new(DynamicError::CannotFindHeapAddress))?;
 
                         if let RuntimeData::Tuple(l) = list {
                             l.push(target);

@@ -27,7 +27,11 @@ impl Heap {
         Heap { heap : HashMap::new(), new_address : 0 }
     }
 
-    pub fn get(&mut self, address : HeapAddress) -> Option<&mut RuntimeData> {
+    pub fn get(&self, address : HeapAddress) -> Option<&RuntimeData> {
+        self.heap.get(&address)
+    }
+
+    pub fn get_mut(&mut self, address : HeapAddress) -> Option<&mut RuntimeData> {
         self.heap.get_mut(&address)
     }
 
