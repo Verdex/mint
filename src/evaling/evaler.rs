@@ -8,7 +8,6 @@ use crate::compiling::compiler;
 use super::data::Context;
 use super::error::RuntimeError;
 use super::pattern_matcher::*;
-use super::display::*;
 
 pub fn eval( input : Top, context : &mut Context ) -> Result<Option<String>, Box<dyn std::error::Error>> {
     for l in input.lets {
@@ -51,13 +50,26 @@ pub fn eval( input : Top, context : &mut Context ) -> Result<Option<String>, Box
         context.functions.insert(Func(0), program); 
         let result = purple::run(&context.functions, &mut context.heap)?;
         match result {
-            Some(Data::Value(RuntimeData::Address(address))) => {
-                let deref = context.heap.get(address).unwrap(); // TODO
-                Ok(Some(print_data(deref)))
-            },
-            Some(Data::Value(v)) => Ok(Some(print_data(&v))),
-            Some(Data::Func(f)) => Ok(Some(print_data(&RuntimeData::Function(f)))),
+            Some(Data::Value(v)) => Ok(Some(print_data(&v, &context.heap))),
+            Some(Data::Func(f)) => Ok(Some(print_data(&RuntimeData::Function(f), &context.heap))),
             None => Ok(None),
         }
+    }
+}
+
+
+fn print_data(data : &RuntimeData, heap : &Heap) -> String {
+    use RuntimeData::*;
+    match data { 
+        Address(x) => { 
+            let deref = heap.get(*x).unwrap(); // TODO
+            format!("Address( {} )", print_data(deref, heap)) // TODO:  deal with looping derefs
+        },
+        Function(x) => format!("Function: {}", x.0),
+        Number(x) => format!("Number: {}", x),
+        String(x) => format!("String: {}", x),
+        Symbol(x) => format!("Symbol: {}", x),
+        List(x) => format!("List( {} )", x.iter().map(|d| print_data(d, heap)).collect::<Vec<_>>().join(", ")),
+        Tuple(x) => format!("Tuple( {} )", x.iter().map(|d| print_data(d, heap)).collect::<Vec<_>>().join(", ")),
     }
 }
