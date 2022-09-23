@@ -4,7 +4,7 @@ use purple::data::*;
 use crate::runtime::*;
 use crate::ast::*;
 
-use super::error::CompileError;
+use super::error::*;
 
 
 type I = Instr<RuntimeData, Heap>;
@@ -38,7 +38,7 @@ impl C {
     }
 }
 
-pub fn compile(input : &Expr, address_map : &M, functions : &mut Fs) -> Result<Vec<I>, CompileError> {
+pub fn compile(input : &Expr, address_map : &M, functions : &mut Fs) -> Result<Vec<I>, StaticError> {
     let mut func = functions.keys().map(|k| k.0).max().unwrap_or(0);
     let mut c = C::new(func);
     match input {
@@ -48,11 +48,11 @@ pub fn compile(input : &Expr, address_map : &M, functions : &mut Fs) -> Result<V
             prog.append(&mut x);
             Ok(prog)
         },
-        Expr::Call(func_expr, params) => Err(CompileError::Todo),
+        Expr::Call(func_expr, params) => Err(StaticError::Todo),
     }
 }
 
-fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut Fs) -> Result<(Symbol, Vec<I>), CompileError> {
+fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut Fs) -> Result<(Symbol, Vec<I>), StaticError> {
     match input {
         Lit::Number(x) => { 
             let s = c.symbol();
@@ -73,7 +73,7 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
             ]))
         },
         Lit::Variable(x) => {
-            Err(CompileError::Todo)
+            Err(StaticError::Todo)
         },
         Lit::List(x) => {
             let y = x.iter().map(|d| compile_literal(c, d, address_map, functions)).collect::<Result<Vec<_>, _>>()?;
@@ -124,10 +124,10 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
             Ok((ret_address, ret))
         },
         Lit::Tuple(x) => {
-            Err(CompileError::Todo)
+            Err(StaticError::Todo)
         },
         Lit::Lambda(x) => {
-            Err(CompileError::Todo)
+            Err(StaticError::Todo)
         },
     }
 }
