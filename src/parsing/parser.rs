@@ -49,10 +49,6 @@ group!(parse_let<'a>: &'a Token => Let = |input| {
 
 group!(parse_pattern<'a>: &'a Token => Pat = |input| {
 
-    /*
-    List(Vec<Pat>, Option<Box<Pat>>),
-    */
-
     seq!(at<'a>: &'a Token => Pat = var <= Token::UpperSymbol(_, _), Token::At(_), pat <= ! parse_pattern, {
         if let Token::UpperSymbol(_, sym) = var {
             Pat::At(sym.into(), Box::new(pat))
