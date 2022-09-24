@@ -21,6 +21,7 @@ pub fn eval( input : Top, context : &mut Context ) -> Result<Option<String>, Box
         }
 
         let data = match result.unwrap() { 
+            Data::Value(RuntimeData::Address(address)) => context.heap.get(address).unwrap().clone(),
             Data::Value(v) => v,
             Data::Func(f) => RuntimeData::Function(f),
         };
