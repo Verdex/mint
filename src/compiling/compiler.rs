@@ -72,9 +72,20 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
                 Instr::LoadValue(s, RuntimeData::Symbol(x.to_string()))
             ]))
         },
+        Lit::Variable(x) if !address_map.contains_key(x) => Err(StaticError::VariableNotDefined(x.into())), 
         Lit::Variable(x) => {
-            Err(StaticError::Todo)
-        },
+            let address = address_map.get(x).unwrap().clone();
+            let s = c.symbol();
+            Ok((s, vec![ Instr::<RuntimeData, Heap>::LoadFromSysCall(s, Box::new(
+                move |locals, heap| {
+                    let ret = heap.get(address).ok_or(Box::new(DynamicError::CannotFindHeapAddress))?;
+                    match ret {
+                        RuntimeData::Function(f) => Ok(Data::Func(f.clone())),
+                        data => Ok(Data::Value(data.clone()))
+                    }
+                }
+            ))]))
+        }, 
         Lit::List(x) => {
             let y = x.iter().map(|d| compile_literal(c, d, address_map, functions)).collect::<Result<Vec<_>, _>>()?;
             let ret_sym = c.symbol();

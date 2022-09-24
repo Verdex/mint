@@ -3,12 +3,14 @@ use purple::data::*;
 
 #[derive(Debug)]
 pub enum StaticError {
+    VariableNotDefined(String),
     Todo
 }
 
 impl std::fmt::Display for StaticError {
     fn fmt(&self, f : &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
+            StaticError::VariableNotDefined(s) => write!(f, "encountered undefined variable: {}", s),
             StaticError::Todo => write!(f, "TODO"),
         }
     }
