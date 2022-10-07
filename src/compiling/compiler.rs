@@ -5,6 +5,7 @@ use crate::runtime::*;
 use crate::ast::*;
 
 use super::error::*;
+use super::instr;
 
 
 type I = Instr<RuntimeData, Heap>;
@@ -76,15 +77,7 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
         Lit::Variable(x) => {
             let address = address_map.get(x).unwrap().clone();
             let s = c.symbol();
-            Ok((s, vec![ Instr::<RuntimeData, Heap>::LoadFromSysCall(s, Box::new(
-                move |locals, heap| {
-                    let ret = heap.get(address).ok_or(Box::new(DynamicError::CannotFindHeapAddress))?;
-                    match ret {
-                        RuntimeData::Function(f) => Ok(Data::Func(f.clone())),
-                        data => Ok(Data::Value(data.clone()))
-                    }
-                }
-            ))]))
+            Ok((s, vec![ instr::load_from_heap(address, s) ]))
         }, 
         Lit::List(x) => {
             let y = x.iter().map(|d| compile_literal(c, d, address_map, functions)).collect::<Result<Vec<_>, _>>()?;
