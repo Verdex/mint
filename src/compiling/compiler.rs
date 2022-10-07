@@ -54,30 +54,28 @@ pub fn compile(input : &Expr, address_map : &M, functions : &mut Fs) -> Result<V
 }
 
 fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut Fs) -> Result<(Symbol, Vec<I>), StaticError> {
+    fn single( s : Symbol, i : Instr<RuntimeData, Heap> ) -> Result<(Symbol, Vec<I>), StaticError> {
+        Ok((s, vec![ i ]))
+    }
+
     match input {
         Lit::Number(x) => { 
             let s = c.symbol();
-            Ok((s, vec![
-                Instr::LoadValue(s, RuntimeData::Number(*x))
-            ]))
+            single(s, Instr::LoadValue(s, RuntimeData::Number(*x)))
         },
         Lit::String(x) => {
             let s = c.symbol();
-            Ok((s, vec![
-                Instr::LoadValue(s, RuntimeData::String(x.to_string()))
-            ]))
+            single(s, Instr::LoadValue(s, RuntimeData::String(x.to_string())))
         },
         Lit::Symbol(x) => {
             let s = c.symbol();
-            Ok((s, vec![
-                Instr::LoadValue(s, RuntimeData::Symbol(x.to_string()))
-            ]))
+            single(s, Instr::LoadValue(s, RuntimeData::Symbol(x.to_string())))
         },
         Lit::Variable(x) if !address_map.contains_key(x) => Err(StaticError::VariableNotDefined(x.into())), 
         Lit::Variable(x) => {
             let address = address_map.get(x).unwrap().clone();
             let s = c.symbol();
-            Ok((s, vec![ instr::load_from_heap(address, s) ]))
+            single(s, instr::load_from_heap(address, s))
         }, 
         Lit::List(x) => {
             let y = x.iter().map(|d| compile_literal(c, d, address_map, functions)).collect::<Result<Vec<_>, _>>()?;
