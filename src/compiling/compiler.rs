@@ -90,7 +90,9 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
 
             ret.append(&mut progs);
 
-            let mut item_names : Vec<I> = item_names.into_iter().map(|item| instr::push_into_list_in_heap(item, ret_address)).collect();
+            let mut item_names : Vec<I> = item_names.into_iter()
+                                                    .map(|item| instr::push_into_list_in_heap(item, ret_address))
+                                                    .collect();
 
             ret.append(&mut item_names);
 
