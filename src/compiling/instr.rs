@@ -33,6 +33,38 @@ pub fn insert_into_heap(symbol_to_insert : Symbol, return_symbol_for_address : S
     ))
 }
 
+pub fn push_into_tuple_in_heap(item : Symbol, tuple_address : Symbol) -> Instr::<RuntimeData, Heap> { 
+
+    fn error(expected : &str, observed : &str) -> Result<(), Box<dyn std::error::Error>> {
+        Err(Box::new(DynamicError::TypeMismatch { expected: expected.into(), observed: observed.into()}))
+    }
+
+    Instr::<RuntimeData, Heap>::SysCall(Box::new(
+        move |locals, heap| {
+            let push_into_tuple = match locals.get(&item)? {
+                Data::Value(x) => x,
+                _ => { return error("Data::Value", "Data::Func"); }
+            };
+
+            let tuple_address = match locals.get(&tuple_address)? {
+                Data::Value(RuntimeData::Address(x)) => x,
+                Data::Value(_) => { return error("Data::Value(RuntimeData::Address", "Data::Value(?)"); },
+                Data::Func(_) => { return error("Data::Value(RuntimeData::Address)", "Data::Func"); },
+            };
+
+            let tuple = heap.get_mut(tuple_address).ok_or(Box::new(DynamicError::CannotFindHeapAddress))?;
+
+            if let RuntimeData::Tuple(t) = tuple {
+                t.push(push_into_tuple);
+                Ok(())
+            }
+            else {
+                error( "RuntimeData::Tuple", "?" )
+            }
+        }
+    ))
+}
+
 pub fn push_into_list_in_heap(item : Symbol, list_address : Symbol) -> Instr::<RuntimeData, Heap> { 
 
     fn error(expected : &str, observed : &str) -> Result<(), Box<dyn std::error::Error>> {

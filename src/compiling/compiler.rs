@@ -103,53 +103,17 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
             let ret_sym = c.symbol();
             let ret_address = c.symbol();
             let mut ret : Vec<I> = vec![ Instr::LoadValue(ret_sym, RuntimeData::Tuple(vec![])) ];
-            ret.push( Instr::LoadFromSysCall(ret_address, Box::new(
-                move |locals, heap| {
-                    if let Data::Value(list) = locals.get(&ret_sym)? {
-                        let address = heap.insert_new(list);
-                        Ok(Data::Value(RuntimeData::Address(address)))
-                    }
-                    else {
-                        Err(Box::new(DynamicError::TypeMismatch { 
-                            expected: "Data::Value".into(),
-                            observed: "?".into(),
-                        }))
-                    }
-                }
-            )));
+
+            ret.push(instr::insert_into_heap(ret_sym, ret_address));
 
             let (item_names, progs) : (Vec<_>, Vec<_>) = y.into_iter().unzip(); // TODO is this possible ahead of time?
             let mut progs = progs.into_iter().flatten().collect::<Vec<_>>();
 
             ret.append(&mut progs);
 
-            let mut item_names : Vec<I> = item_names.into_iter().map(|n| Instr::<RuntimeData, Heap>::SysCall(Box::new(
-                move |locals, heap| {
-                    if let (Data::Value(target), Data::Value(RuntimeData::Address(list_address))) 
-                        = (locals.get(&n)?, locals.get(&ret_address)?) {
-
-                        let list = heap.get_mut(list_address).ok_or(Box::new(DynamicError::CannotFindHeapAddress))?;
-
-                        if let RuntimeData::Tuple(l) = list {
-                            l.push(target);
-                        }
-                        else {
-                            return Err(Box::new(DynamicError::TypeMismatch {
-                                expected: "RuntimeData::Tuple".into(),
-                                observed: "?".into(),
-                            }));
-                        }
-
-                        Ok(())
-                    }
-                    else {
-                        Err(Box::new(DynamicError::TypeMismatch {
-                            expected: "Data::Value and Data::Value(RuntimeData::Address)".into(),
-                            observed: "?".into(),
-                        }))
-                    }
-                }
-            ))).collect();
+            let mut item_names : Vec<I> = item_names.into_iter()
+                                                    .map(|item| instr::push_into_tuple_in_heap(item, ret_address))
+                                                    .collect();
 
             ret.append(&mut item_names);
 
