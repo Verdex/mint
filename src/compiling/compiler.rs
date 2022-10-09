@@ -82,20 +82,8 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
             let ret_sym = c.symbol();
             let ret_address = c.symbol();
             let mut ret : Vec<I> = vec![ Instr::LoadValue(ret_sym, RuntimeData::List(vec![])) ];
-            ret.push( Instr::LoadFromSysCall(ret_address, Box::new(
-                move |locals, heap| {
-                    if let Data::Value(list) = locals.get(&ret_sym)? {
-                        let address = heap.insert_new(list);
-                        Ok(Data::Value(RuntimeData::Address(address)))
-                    }
-                    else {
-                        Err(Box::new(DynamicError::TypeMismatch { 
-                            expected: "Data::Value".into(),
-                            observed: "?".into(),
-                        }))
-                    }
-                }
-            )));
+
+            ret.push(instr::insert_into_heap(ret_sym, ret_address));
 
             let (item_names, progs) : (Vec<_>, Vec<_>) = y.into_iter().unzip(); // TODO is this possible ahead of time?
             let mut progs = progs.into_iter().flatten().collect::<Vec<_>>();
