@@ -3,6 +3,7 @@ use purple::data::*;
 
 #[derive(Debug)]
 pub enum StaticError {
+    DuplicateVariableDefinitions(String),
     VariableNotDefined(String),
     Todo
 }
@@ -10,6 +11,7 @@ pub enum StaticError {
 impl std::fmt::Display for StaticError {
     fn fmt(&self, f : &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
+            StaticError::DuplicateVariableDefinitions(s) => write!(f, "encountered duplicate variable definitions: {}", s),
             StaticError::VariableNotDefined(s) => write!(f, "encountered undefined variable: {}", s),
             StaticError::Todo => write!(f, "TODO"),
         }

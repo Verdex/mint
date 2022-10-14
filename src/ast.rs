@@ -103,7 +103,7 @@ impl<'a> Linearizable<'a> for Pat {
     }
 }
 
-pub fn bound_variables<'a>( input : &'a Top ) -> Vec<&'a str> {
+pub fn bound_variables<'a>( input : &'a Top ) -> impl Iterator<Item = &'a str> {
     input.lets.iter().map(|x| &x.pattern)
                      .flat_map(|x| x.to_lax())
                      .filter(|p| matches!(p, Pat::Variable(_) | Pat::At(_, _)))
@@ -111,7 +111,7 @@ pub fn bound_variables<'a>( input : &'a Top ) -> Vec<&'a str> {
                         Pat::Variable(x) => x.as_str(),
                         Pat::At(x, _) => x.as_str(),
                         _ => unreachable!(), 
-                     }).collect()
+                     })
 }
 
 #[cfg(test)]
@@ -129,7 +129,7 @@ mod test {
              ").unwrap();
         let top = crate::parsing::parser::parse(&tokens).unwrap();
 
-        let output = bound_variables(&top);
+        let output = bound_variables(&top).collect::<Vec<_>>();
 
         assert_eq!( output, vec!["X", "Y", "Z", "W", "H", "N"] );
     }
@@ -145,7 +145,7 @@ mod test {
              ").unwrap();
         let top = crate::parsing::parser::parse(&tokens).unwrap();
 
-        let output = bound_variables(&top);
+        let output = bound_variables(&top).collect::<Vec<_>>();
 
         assert_eq!( output, vec!["X", "Y", "Z", "W", "H", "N"] );
     }

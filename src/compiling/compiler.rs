@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
 use purple::data::*;
+use denest::Linearizable;
+
 use crate::runtime::*;
 use crate::ast::*;
 
@@ -120,6 +122,20 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
             Ok((ret_address, ret))
         },
         Lit::Lambda(x) => {
+            let mut variables_to_bind = bound_variables( &x.body )
+                .chain(x.params.iter()
+                               .flat_map(|x| x.to_lax())
+                               .filter(|x| matches!(x, Pat::At(_, _) | Pat::Variable(_)))
+                               .map(|x| match x { Pat::At(x, _) => x.as_str(), Pat::Variable(x) => x.as_str(), _ => unreachable!() })
+                            )
+                .collect::<Vec<_>>();
+            
+            variables_to_bind.sort();
+
+
+            // foreach parameter pop a param
+            // then do a pattern match against it
+            // params, body
             Err(StaticError::Todo)
         },
     }
