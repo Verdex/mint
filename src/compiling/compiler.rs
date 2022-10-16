@@ -122,15 +122,8 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
             Ok((ret_address, ret))
         },
         Lit::Lambda(x) => {
-            let mut variables_to_bind = bound_variables( &x.body )
-                .chain(x.params.iter()
-                               .flat_map(|x| x.to_lax())
-                               .filter(|x| matches!(x, Pat::At(_, _) | Pat::Variable(_)))
-                               .map(|x| match x { Pat::At(x, _) => x.as_str(), Pat::Variable(x) => x.as_str(), _ => unreachable!() })
-                            )
-                .collect::<Vec<_>>();
+            lambda_variables_are_unique(&x)?;
             
-            variables_to_bind.sort();
 
 
             // foreach parameter pop a param
@@ -139,4 +132,28 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
             Err(StaticError::Todo)
         },
     }
+}
+
+fn lambda_variables_are_unique( lambda : &Lambda ) -> Result<(), StaticError> {
+    let mut variables_to_bind = bound_variables( &lambda.body )
+        .chain(lambda.params.iter()
+                        .flat_map(|x| x.to_lax())
+                        .filter(|x| matches!(x, Pat::At(_, _) | Pat::Variable(_)))
+                        .map(|x| match x { Pat::At(x, _) => x.as_str(), Pat::Variable(x) => x.as_str(), _ => unreachable!() })
+                    )
+        .collect::<Vec<_>>();
+    
+    variables_to_bind.sort();
+
+    for (a, b) in std::iter::zip(variables_to_bind.iter(), variables_to_bind.iter().skip(1)) {
+        if a == b {
+            return Err(StaticError::DuplicateVariableDefinitions((**a).into()));
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(test)] 
+mod test {
 }
