@@ -5,6 +5,12 @@ use crate::runtime::*;
 
 use super::error::*;
 
+/*
+TODO
+pub fn pattern_match() -> Instr<RuntimeData, Heap> {
+    use crate::evaling::pattern_matcher::pattern_match; 
+}*/
+
 pub fn load_from_heap(address : HeapAddress, sym : Symbol) -> Instr<RuntimeData, Heap> {
     Instr::<RuntimeData, Heap>::LoadFromSysCall(sym, Box::new(
         move |locals, heap| {

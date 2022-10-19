@@ -126,7 +126,21 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
             
             let mut ret : Vec<I> = vec![];
 
-            //x.params.flat_map(pattern_variables)
+            // TODO use this map to figure out what symbol a variable needs to grab
+            let mut var_to_sym = x.params.iter().flat_map(|param| param.variables_to_bind())
+                                                .map(|var| (var, c.symbol()))
+                                                .collect::<Vec<_>>()
+                                                .into_iter()
+                                                .chain(x.body.variables_to_bind().map(|var| (var, c.symbol())))
+                                                .collect::<HashMap<&str, Symbol>>();
+            
+            let mut initial_param_sym = vec![];
+            for _ in 1..=x.params.len() {
+                let s = c.symbol();
+                initial_param_sym.push(s);
+                ret.push(Instr::PopParam(s));
+            }
+
 
             //x.params
             // foreach parameter pop
