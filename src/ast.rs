@@ -103,15 +103,19 @@ impl<'a> Linearizable<'a> for Pat {
     }
 }
 
+pub fn pattern_variables<'a>( input : &'a Pat ) -> impl Iterator<Item = &'a str> {
+    input.to_lax()
+         .filter(|p| matches!(p, Pat::Variable(_) | Pat::At(_, _)))
+         .map(|p| match p {
+             Pat::Variable(x) => x.as_str(),
+             Pat::At(x, _) => x.as_str(),
+             _ => unreachable!(), 
+         })
+}
+
 pub fn bound_variables<'a>( input : &'a Top ) -> impl Iterator<Item = &'a str> {
     input.lets.iter().map(|x| &x.pattern)
-                     .flat_map(|x| x.to_lax())
-                     .filter(|p| matches!(p, Pat::Variable(_) | Pat::At(_, _)))
-                     .map(|p| match p {
-                        Pat::Variable(x) => x.as_str(),
-                        Pat::At(x, _) => x.as_str(),
-                        _ => unreachable!(), 
-                     })
+                     .flat_map(pattern_variables)
 }
 
 #[cfg(test)]

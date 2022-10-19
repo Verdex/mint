@@ -124,6 +124,12 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
         Lit::Lambda(x) => {
             lambda_variables_are_unique(&x)?;
             
+            let mut ret : Vec<I> = vec![];
+
+            //x.params
+            // foreach parameter pop
+            // then pattern match each parameter
+            // return list of (varable name to address)
 
 
             // foreach parameter pop a param
@@ -137,10 +143,7 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
 fn lambda_variables_are_unique( lambda : &Lambda ) -> Result<(), StaticError> {
     let mut variables_to_bind = bound_variables( &lambda.body )
         .chain(lambda.params.iter()
-                        .flat_map(|x| x.to_lax())
-                        .filter(|x| matches!(x, Pat::At(_, _) | Pat::Variable(_)))
-                        .map(|x| match x { Pat::At(x, _) => x.as_str(), Pat::Variable(x) => x.as_str(), _ => unreachable!() })
-                    )
+                            .flat_map(pattern_variables))
         .collect::<Vec<_>>();
     
     variables_to_bind.sort();
