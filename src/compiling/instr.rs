@@ -5,11 +5,23 @@ use crate::runtime::*;
 
 use super::error::*;
 
-/*
-TODO
-pub fn pattern_match() -> Instr<RuntimeData, Heap> {
+//TODO
+pub fn pattern_match(data : Symbol) -> Instr<RuntimeData, Heap> {
     use crate::evaling::pattern_matcher::pattern_match; 
-}*/
+    Instr::<RuntimeData, Heap>::LoadFromSysCall(Symbol(0), Box::new(
+        move |locals, heap| {
+            let data = {
+                match locals.get(&data)? {
+                    Data::Func(f) => RuntimeData::Function(f),
+                    Data::Value(RuntimeData::Address(address)) =>
+                        heap.get(address).ok_or(Box::new(DynamicError::CannotFindHeapAddress))?,
+                    Data::Value(v) => v,
+                }
+            };
+
+
+        }))
+}
 
 pub fn load_from_heap(address : HeapAddress, sym : Symbol) -> Instr<RuntimeData, Heap> {
     Instr::<RuntimeData, Heap>::LoadFromSysCall(sym, Box::new(
