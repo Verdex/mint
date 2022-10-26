@@ -1,7 +1,7 @@
 
 use std::collections::HashMap;
 
-use crate::ast::{Pat, Lit};
+use crate::ast::Pat;
 use crate::runtime::*;
 
 use super::error::*;
