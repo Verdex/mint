@@ -1,25 +1,39 @@
 
+use std::collections::HashMap;
+
 use purple::data::*;
 
+use crate::ast::*;
 use crate::runtime::*;
 
 use super::error::*;
 
-//TODO
-pub fn pattern_match(data : Symbol) -> Instr<RuntimeData, Heap> {
-    use crate::evaling::pattern_matcher::pattern_match; 
-    Instr::<RuntimeData, Heap>::LoadFromSysCall(Symbol(0), Box::new(
+pub fn pattern_match(data : Symbol, pattern : Pat, result : Symbol, var_to_sym : HashMap<String, Symbol>) -> Instr<RuntimeData, Heap> {
+    use crate::evaling::pattern_matcher::*; 
+
+    Instr::<RuntimeData, Heap>::LoadFromSysCall(result, Box::new(
         move |locals, heap| {
             let data = {
                 match locals.get(&data)? {
                     Data::Func(f) => RuntimeData::Function(f),
                     Data::Value(RuntimeData::Address(address)) =>
-                        heap.get(address).ok_or(Box::new(DynamicError::CannotFindHeapAddress))?,
+                        heap.get(address).ok_or(Box::new(DynamicError::CannotFindHeapAddress))?.clone(),
                     Data::Value(v) => v,
                 }
             };
 
-
+            match pattern_match(&pattern, &data) {
+                MatchResult::Fatal(err) => { return Err(Box::new(err))},
+                MatchResult::NoMatch => Ok(Data::Value(RuntimeData::Symbol("false".into()))),
+                MatchResult::Env(bounds) => {
+                    for BoundData { name, data } in bounds {
+                        let address = heap.insert_new(data);
+                        let sym = var_to_sym.get(&name).expect("var_to_sym missing variable");
+                        locals.set(sym, Data::Value(RuntimeData::Address(address)))?;
+                    }
+                    Ok(Data::Value(RuntimeData::Symbol("true".into())))
+                },
+            }
         }))
 }
 
