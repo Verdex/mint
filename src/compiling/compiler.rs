@@ -124,7 +124,9 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
         Lit::Lambda(x) => {
             lambda_variables_are_unique(&x)?;
             
-            let mut ret : Vec<I> = vec![];
+            let mut func_body : Vec<I> = vec![];
+
+            let mut var_to_sym : HashMap<String, Symbol> = HashMap::new();
 
             // TODO use this map to figure out what symbol a variable needs to grab
             /*let mut var_to_sym = x.params.iter().flat_map(|param| param.variables_to_bind())
@@ -141,14 +143,27 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
                 ret.push(Instr::PopParam(s));
             }*/
 
-            for param in &x.params {
-                let pre_data = c.symbol();
+            let mut pre_datas = vec![];
+            for _ in 0..x.params.len() {
+                let s = c.symbol();
+                pre_datas.push(s);
+                func_body.push(Instr::PopParam(s));
+            }
+            pre_datas.reverse();
+
+            for (param, pre_data) in std::iter::zip(&x.params, pre_datas) {
                 let result = c.symbol();
-                ret.push(Instr::PopParam(pre_data));
-                let var_to_sym = param.variables_to_bind().map(|var| (var.to_string(), c.symbol())).collect::<HashMap<String, Symbol>>();
-                ret.push(instr::pattern_match(pre_data, param.clone(), result, var_to_sym));
+                let local_var_to_sym = param.variables_to_bind().map(|var| (var.to_string(), c.symbol())).collect::<HashMap<String, Symbol>>();
+                func_body.push(instr::pattern_match(pre_data, param.clone(), result, local_var_to_sym.clone()));
+                func_body.push(instr::panic_on_false(result, "".into()));
+                for (k, v) in local_var_to_sym.into_iter() {
+                    var_to_sym.insert(k, v);
+                }
             }
 
+            let func_address = c.func();
+
+            functions.insert(func_address, func_body);
 
 
 
@@ -161,7 +176,9 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
             // foreach parameter pop a param
             // then do a pattern match against it
             // params, body
-            Err(StaticError::Todo)
+            //Err(StaticError::Todo)
+            let func_address_sym = c.symbol();
+            single(func_address_sym, Instr::LoadFunc(func_address_sym, func_address))
         },
     }
 }

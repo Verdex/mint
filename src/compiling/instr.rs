@@ -8,6 +8,17 @@ use crate::runtime::*;
 
 use super::error::*;
 
+pub fn panic_on_false(target : Symbol, message : String) -> Instr<RuntimeData, Heap> {
+
+    Instr::<RuntimeData, Heap>::SysCall(Box::new(
+        move |locals, heap| {
+            match locals.get(&target)? {
+                Data::Value(RuntimeData::Symbol(v)) if v == "true" => Ok(()),
+                _ => Err(Box::new(DynamicError::Panic(message.clone()))),
+            }
+        }))
+}
+
 pub fn pattern_match(data : Symbol, pattern : Pat, result : Symbol, var_to_sym : HashMap<String, Symbol>) -> Instr<RuntimeData, Heap> {
     use crate::evaling::pattern_matcher::*; 
 
