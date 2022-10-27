@@ -135,13 +135,6 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
                                                 .into_iter()
                                                 .chain(x.body.variables_to_bind().map(|var| (var, c.symbol())))
                                                 .collect::<HashMap<&str, Symbol>>();*/
-            
-            /*let mut initial_param_sym = vec![];
-            for _ in 1..=x.params.len() {
-                let s = c.symbol();
-                initial_param_sym.push(s);
-                ret.push(Instr::PopParam(s));
-            }*/
 
             let mut pre_datas = vec![];
             for _ in 0..x.params.len() {
@@ -165,19 +158,10 @@ fn compile_literal(c : &mut C, input : &Lit, address_map : &M, functions : &mut 
 
             functions.insert(func_address, func_body);
 
-
-
-            //x.params
-            // foreach parameter pop
-            // then pattern match each parameter
-            // return list of (varable name to symbol that will hold an address)
-
-
-            // foreach parameter pop a param
-            // then do a pattern match against it
-            // params, body
-            //Err(StaticError::Todo)
             let func_address_sym = c.symbol();
+
+            // TODO compile body
+
             single(func_address_sym, Instr::LoadFunc(func_address_sym, func_address))
         },
     }
